@@ -10,5 +10,5 @@ const kTextThirdColor = Color(0xFF9A9693);
 const kTextDisabledColor = Color(0xFFC4C4C4);
 const tagChip = Color(0xFFFECE52);
 
-const baseUrl = "https://96627542ecf38f.localhost.run";
+const baseUrl = "https://72866dc6598dce.localhost.run";
 //"http://192.168.137.1:8080";

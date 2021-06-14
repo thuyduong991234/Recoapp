@@ -8,6 +8,7 @@ import 'package:recoapp/src/blocs/filter_bloc/filter_state.dart';
 import 'package:recoapp/src/ui/constants.dart';
 import 'package:recoapp/src/ui/page/home/campaign_carousel.dart';
 import 'package:recoapp/src/ui/page/home/checkbox_filter_list.dart';
+import 'package:recoapp/src/ui/page/home/near_you.dart';
 import 'package:recoapp/src/ui/page/home/recommend_for_you_list.dart';
 import 'package:recoapp/src/ui/page/home/reputation_carousel.dart';
 import 'package:recoapp/src/ui/page/home/restaurant_carousel.dart';
@@ -419,12 +420,23 @@ class _HomePageState extends State<HomePage>
                       SizedBox(
                         width: 50,
                       ),
-                      Text("Gần bạn",
-                          style: TextStyle(
-                              color: kTextDisabledColor,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2)),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => BlocProvider.value(
+                                        value: filterBloc,
+                                        child: NearYouPage(),
+                                      )));
+                        },
+                        child: Text("Gần bạn",
+                            style: TextStyle(
+                                color: kTextDisabledColor,
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2)),
+                      ),
                     ],
                   ),
                 ),

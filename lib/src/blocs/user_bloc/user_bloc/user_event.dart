@@ -29,6 +29,30 @@ class LoginWithGoogleEvent extends UserEvent {
   String toString() => 'ProductButtonPressed { ... }';
 }
 
+class InitialPositionEvent extends UserEvent {
+  final double latitude;
+  final double longtitude;
+  
+  InitialPositionEvent({this.latitude, this.longtitude});
+  @override
+  List<Object> get props => [latitude, longtitude];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
+class GetRestaurantByPositionEvent extends UserEvent {
+  final double latitude;
+  final double longtitude;
+  
+  GetRestaurantByPositionEvent({this.latitude, this.longtitude});
+  @override
+  List<Object> get props => [latitude, longtitude];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
 class LogoutEvent extends UserEvent {
   final BuildContext context;
   

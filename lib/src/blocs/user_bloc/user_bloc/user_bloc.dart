@@ -3,11 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_event.dart';
 import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_state.dart';
 import 'package:recoapp/src/models/diner.dart';
 import 'package:recoapp/src/models/filter_item.dart';
+import 'package:recoapp/src/models/restaurant.dart';
 import 'package:recoapp/src/models/simple_review.dart';
 import 'package:recoapp/src/resources/resource/resource_repository.dart';
 import 'package:recoapp/src/resources/review/review_repository.dart';
@@ -28,6 +30,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   int totalPage = 0;
   List<String> areas = [];
   List<int> tagId = [];
+  double longtitude = 0;
+  double latitude = 0;
+  List<Restaurant> nearBy = [];
+  Set<Marker> markers = Set();
 
   Diner diner = null;
 
@@ -50,6 +56,30 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   @override
   Stream<UserState> mapEventToState(event) async* {
+    if (event is InitialPositionEvent) {
+      yield UserLoadingState();
+      longtitude = event.longtitude;
+      latitude = event.latitude;
+      nearBy = await _dinerRepository.GetRestaurantByPosition(
+          latitude: event.latitude, longtitude: event.longtitude);
+
+      for (int i = 0; i < nearBy.length; i++) {
+        print("i = " + i.toString());
+        Marker marker = new Marker(
+          markerId: MarkerId(nearBy[i].id.toString()),
+          position: LatLng(nearBy[i].latitude, nearBy[i].longtitude),
+          infoWindow: InfoWindow(title: nearBy[i].name),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueRed,
+          ),
+        );
+        markers.add(marker);
+        
+      }
+      print("length = " + markers.length.toString());
+      yield UserLoadedState();
+    }
+
     if (event is GetDinerEvent) {
       yield UserLoadingState();
       diner = await _dinerRepository.getDiner(id: event.idUser);
@@ -172,7 +202,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
       if (diner.fullname == "Chưa cập nhật" ||
           (diner.phone == "Chưa cập nhật" &&
-          diner.address == "Chưa cập nhật")) {
+              diner.address == "Chưa cập nhật")) {
         Navigator.push(
           event.context,
           MaterialPageRoute(builder: (context) => AccountPage()),

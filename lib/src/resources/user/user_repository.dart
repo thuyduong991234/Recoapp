@@ -1,4 +1,5 @@
 import 'package:recoapp/src/models/diner.dart';
+import 'package:recoapp/src/models/restaurant.dart';
 import 'package:recoapp/src/resources/user/user_api_provider.dart';
 
 class DinerRepository {
@@ -28,10 +29,20 @@ class DinerRepository {
           address: address,
           gender: gender);
 
-  Future<List<Object>> login({String username, String password}) => dinerApiProvider.login(username: username, password: password);
+  Future<List<Object>> login({String username, String password}) =>
+      dinerApiProvider.login(username: username, password: password);
 
-  Future<String> register(
-      {String username, String password, String email}) => dinerApiProvider.register(username: username, password: password, email: email);
+  Future<String> register({String username, String password, String email}) =>
+      dinerApiProvider.register(
+          username: username, password: password, email: email);
 
-  Future<List<Object>> loginSocial({String fullname, String email, String avatar}) => dinerApiProvider.loginSocial(fullname: fullname, email: email, avatar: avatar);
+  Future<List<Object>> loginSocial(
+          {String fullname, String email, String avatar}) =>
+      dinerApiProvider.loginSocial(
+          fullname: fullname, email: email, avatar: avatar);
+
+  Future<List<Restaurant>> GetRestaurantByPosition(
+          {double latitude, double longtitude}) =>
+      dinerApiProvider.GetRestaurantByPosition(
+          latitude: latitude, longtitude: longtitude);
 }

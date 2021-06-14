@@ -36,6 +36,7 @@ class Restaurant {
   int reservationCount;
   int reviewCount;
   int commentCount;
+  double distance;
 
   Restaurant(
       {this.id,
@@ -72,7 +73,8 @@ class Restaurant {
       this.userLikeCount,
       this.reservationCount,
       this.reviewCount,
-      this.commentCount}) {
+      this.commentCount,
+      this.distance}) {
     convertCarousel(carousel);
     convertMenu(menu);
   }
@@ -120,9 +122,11 @@ class Restaurant {
       latitude: json["address"]["latitude"],
       linkUrl: json["address"]["linkUrl"],
       userLikeCount: json["userLikeCount"] != null ? json["userLikeCount"] : 0,
-      reservationCount: json["reservationCount"] != null ? json["reservationCount"] : 0,
+      reservationCount:
+          json["reservationCount"] != null ? json["reservationCount"] : 0,
       reviewCount: json["reviewCount"] != null ? json["reviewCount"] : 0,
       commentCount: json["commentCount"] != null ? json["commentCount"] : 0,
+      distance:  json["distance"] ?? 0,
     );
   }
 

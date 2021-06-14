@@ -8,6 +8,7 @@ import 'package:recoapp/src/blocs/filter_bloc/filter_bloc.dart';
 import 'package:recoapp/src/blocs/filter_bloc/filter_event.dart';
 import 'package:recoapp/src/blocs/filter_bloc/filter_state.dart';
 import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_bloc.dart';
+import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_event.dart';
 import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_state.dart';
 
 class MyHttpOverrides extends HttpOverrides{
@@ -32,7 +33,7 @@ void main() async {
                 FilterBloc(FilterInitial())..add(GetFilterEvent()),
           ),
           BlocProvider<UserBloc>(
-            create: (BuildContext context) => UserBloc(UserInitial()),
+            create: (BuildContext context) => UserBloc(UserInitial())..add(InitialPositionEvent(latitude: 10.848285894133156, longtitude: 106.77430679731481)),
           ),
         ],
       ),);

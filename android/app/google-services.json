@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1019040554898",
+    "project_id": "reco-thesis",
+    "storage_bucket": "reco-thesis.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1019040554898:android:bd4cf891b66dafa74f2b4b",
+        "android_client_info": {
+          "package_name": "com.example.recoapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1019040554898-as4sh9l2euvugusemto11l4uq2b9bv86.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAb3cdz_8BCZaRMRc5ZpHlvBNVhkGsOoq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1019040554898-as4sh9l2euvugusemto11l4uq2b9bv86.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_event.dart';
 import 'package:recoapp/src/models/diner.dart';
+import 'package:recoapp/src/models/restaurant.dart';
 import 'package:recoapp/src/models/simple_review.dart';
 import 'dart:convert';
 
@@ -24,6 +26,32 @@ class DinerApiProvider {
       Diner diner = Diner.fromJsonMap(jsonResponse["data"]);
 
       return diner;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load tag');
+    }
+  }
+
+  Future<List<Restaurant>> GetRestaurantByPosition({double latitude, double longtitude}) async {
+    var url = Uri.parse(baseUrl + "/restaurants/nearby?latitude=" + latitude.toString() + "&longtitude=" + longtitude.toString());
+
+    print("url login = " + url.toString());
+
+    final response = await http
+        .get(url, headers: {'Accept': 'application/json; charset=UTF-8'});
+
+    var jsonResponse = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      //print("Vô api:" + jsonResponse.toString());
+      List<Restaurant> data = [];
+      jsonResponse['data']
+          .forEach((item) => {data.add(Restaurant.fromJsonMap(item))});
+
+      return data;
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
