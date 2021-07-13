@@ -13,6 +13,7 @@ class Reservation {
   String nameRestaurant;
   String detailAddress;
   String titleVoucher;
+  int commentId;
 
   int get idRestaurant => _idRestaurant;
   int get idVoucher => _idVoucher;
@@ -79,7 +80,8 @@ class Reservation {
       String code,
       String nameRestaurant,
       String detailAddress,
-      String title}) {
+      String title,
+      int commentId}) {
     this.id = id;
     this._idRestaurant = idRestaurant;
     this._idVoucher = idVoucher;
@@ -94,6 +96,7 @@ class Reservation {
     this.nameRestaurant = nameRestaurant;
     this.detailAddress = detailAddress;
     this.titleVoucher = title;
+    this.commentId = commentId;
   }
 
   factory Reservation.fromJson(Map<String, dynamic> json) => Reservation(
@@ -109,5 +112,6 @@ class Reservation {
       email: json["email"],
       numberPerson: json["partySize"],
       additionalInfo: json["note"],
+      commentId: json["commentId"] ?? null,
       time: DateTime.parse(json["timeComing"]));
 }

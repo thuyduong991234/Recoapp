@@ -8,4 +8,6 @@ class VoucherRepository {
   Future<List<Voucher>> fetchAllVouchers({int idRestaurant}) => voucherApiProvider.fetchAllVouchers(idRestaurant: idRestaurant);
 
   Future<Voucher> getDetailVoucher({int idVoucher}) => voucherApiProvider.getDetailVoucher(idVoucher: idVoucher);
+
+  Future<List<Voucher>> fetchTop10NewestVouchers() => voucherApiProvider.fetchTop10NewestVouchers();
 }

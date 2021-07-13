@@ -12,11 +12,17 @@ class SearchRepository {
           String minPrice,
           String maxPrice,
           String sortBy,
-          int page) =>
+          int page,
+          double latitude,
+          double longtitude) =>
       searchApiProvider.searchByFilter(
-          areas, dishes, types, nation, minPrice, maxPrice, sortBy, page);
+          areas, dishes, types, nation, minPrice, maxPrice, sortBy, page, latitude, longtitude);
 
   Future<List<Object>> searchReview(String sortBy, int page) => searchApiProvider.searchReview(sortBy, page);
 
-  Future<List<Object>> searchRestaurant(String sortBy, int page) => searchApiProvider.searchRestaurant(sortBy, page);
+  Future<List<Object>> searchRestaurant(String sortBy, int page, double latitude,
+          double longtitude) => searchApiProvider.searchRestaurant(sortBy, page, latitude, longtitude);
+
+  Future<List<Object>> searchByOneTag(
+      int tagId, int page, double latitude, double longtitude) => searchApiProvider.searchByOneTag(tagId, page, latitude, longtitude);
 }

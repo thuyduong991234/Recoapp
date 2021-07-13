@@ -36,6 +36,33 @@ class ReservationApiProvider {
     }
   }
 
+  Future<String> cancelledReservation({int idReservation}) async {
+    var url = Uri.parse(baseUrl + "/reservations/bulk-approve");
+
+    print("id = " + idReservation.toString());
+
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'ids': [idReservation],
+        'type': 3
+      }),
+    );
+
+    print("response.statusCode = " + response.statusCode.toString());
+
+    if (response.statusCode == 204) {
+      return "204";
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load tag');
+    }
+  }
+
   Future<List<Object>> fetchReservationByType({int idUser, int page, int type}) async {
     
     var url = Uri.parse(baseUrl + "/reservations/type/" + type.toString() + "/user/" +

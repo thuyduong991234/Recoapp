@@ -1,4 +1,3 @@
-import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -31,6 +30,38 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void showProcessingDialog() async {
+    return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+              contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+              content: Container(
+                  width: 250.0,
+                  height: 100.0,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(kPrimaryColor),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: Text(
+                            "Đợi một xíu...",
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        )
+                      ])));
+        });
   }
 
   @override
@@ -231,8 +262,12 @@ class _LoginPageState extends State<LoginPage> {
                                           side: BorderSide(
                                               color: kPrimaryColor)))),
                               onPressed: () => {
-                                userBloc.add(LoginEvent(username: textUserName.text, password: textPassword.text, context: context))
-                              }),
+                                    userBloc.add(LoginEvent(
+                                        username: textUserName.text,
+                                        password: textPassword.text,
+                                        context: context)),
+                                    showProcessingDialog()
+                                  }),
                           SizedBox(height: 40),
                           Center(
                               child: GestureDetector(
@@ -296,24 +331,9 @@ class _LoginPageState extends State<LoginPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               GestureDetector(
-                                onTap: (){},
-                                child: Container(
-                                  margin: EdgeInsets.symmetric(horizontal: 20),
-                                  padding: EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      width: 1,
-                                      color: kPrimaryColor,
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(FontAwesomeIcons.facebookF,
-                                      color: kPrimaryColor, size: 25),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: (){
-                                  userBloc.add(LoginWithGoogleEvent(context: context));
+                                onTap: () {
+                                  userBloc.add(
+                                      LoginWithGoogleEvent(context: context));
                                 },
                                 child: Container(
                                   margin: EdgeInsets.symmetric(horizontal: 20),

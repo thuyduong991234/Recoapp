@@ -8,10 +8,12 @@ abstract class RestaurantEvent extends Equatable {
 class GetRestaurantEvent extends RestaurantEvent {
   final int id;
   final int idUser;
+  final double latitude;
+  final double longtitude;
 
-  GetRestaurantEvent({this.id, this.idUser});
+  GetRestaurantEvent({this.id, this.idUser, this.latitude, this.longtitude});
   @override
-  List<Object> get props => [id, idUser];
+  List<Object> get props => [id, idUser, latitude, longtitude];
 
   @override
   String toString() => 'ProductButtonPressed { ... }';
@@ -71,10 +73,24 @@ class UserLikeRestaurantEvent extends RestaurantEvent {
   final int id;
   final bool isLiked;
   final int idUser;
+  final double latitude;
+  final double longtitude;
 
-  UserLikeRestaurantEvent({this.id, this.isLiked, this.idUser});
+  UserLikeRestaurantEvent({this.id, this.isLiked, this.idUser, this.latitude, this.longtitude});
   @override
-  List<Object> get props => [id, isLiked, idUser];
+  List<Object> get props => [id, isLiked, idUser, latitude, longtitude];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
+class GetRecommendRestaurantEvent extends RestaurantEvent {
+  final double latitude;
+  final double longtitude;
+
+  GetRecommendRestaurantEvent({this.latitude, this.longtitude});
+  @override
+  List<Object> get props => [latitude, longtitude];
 
   @override
   String toString() => 'ProductButtonPressed { ... }';

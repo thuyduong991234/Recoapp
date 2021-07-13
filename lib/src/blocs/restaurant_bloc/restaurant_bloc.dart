@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_event.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_state.dart';
 import 'package:recoapp/src/models/comment.dart';
@@ -25,6 +26,8 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
   int totalPage = 0;
   int numberLiked = 0;
   bool isFollowed = false;
+  Marker marker = null;
+  List<Restaurant> recommendRestaurant = [];
 
   final _restaurantRepository = RestaurantRepository();
   final _voucherRepository = VoucherRepository();
@@ -42,7 +45,8 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
   Stream<RestaurantState> mapEventToState(event) async* {
     if (event is GetRestaurantEvent) {
       print("event.id " + event.id.toString());
-      data = await _restaurantRepository.getDetailRestaurant(id: event.id);
+      data = await _restaurantRepository.getDetailRestaurant(
+          id: event.id, latitude: event.latitude, longtitude: event.longtitude);
       numberLiked = data.userLikeCount;
       listVouchers =
           await _voucherRepository.fetchAllVouchers(idRestaurant: data.id);
@@ -50,7 +54,6 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
           idRestaurant: data.id, page: page);
       listComment = result[0];
       if (result[1] == page + 1) hasReachedMax = true;
-      print("carousel = " + data.carousel.toString());
 
       if (event.idUser != null) {
         Diner diner = await _dinerRepository.getDiner(id: event.idUser);
@@ -63,6 +66,18 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
       } else {
         isFollowed = false;
       }
+
+      marker = new Marker(
+        markerId: MarkerId(data.id.toString()),
+        position: LatLng(data.latitude, data.longtitude),
+        infoWindow: InfoWindow(title: data.name),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueRed,
+        ),
+      );
+
+      await _restaurantRepository.createHistory(
+          idUser: event.idUser, idRestaurant: data.id);
 
       yield RestaurantLoadedState();
     }
@@ -88,6 +103,14 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
 
       currentVoucher =
           await _voucherRepository.getDetailVoucher(idVoucher: event.id);
+      marker = new Marker(
+        markerId: MarkerId(currentVoucher.idRestaurant.toString()),
+        position: LatLng(currentVoucher.latitude, currentVoucher.longtitude),
+        infoWindow: InfoWindow(title: currentVoucher.nameRestaurant),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueRed,
+        ),
+      );
 
       yield RestaurantLoadedState();
     }
@@ -149,7 +172,6 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
     }
 
     if (event is UserLikeRestaurantEvent) {
-      yield RestaurantLoadingState();
       if (event.idUser == null) {
         Fluttertoast.showToast(
             msg: "Bạn cần đăng nhập để thực hiện chức năng này!",
@@ -158,15 +180,19 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
             backgroundColor: Colors.red,
             textColor: Colors.white,
             timeInSecForIosWeb: 5);
+        yield RestaurantLoadingState();
       } else {
-        isFollowed = false;
+        event.isLiked == true ? isFollowed = false : isFollowed = true;
+        yield RestaurantLoadingState();
         String code = await _restaurantRepository.followRestaurant(
             idUser: event.idUser,
             idRestaurant: event.id,
             isLiked: event.isLiked);
         if (code == "204") {
-          Restaurant result =
-              await _restaurantRepository.getDetailRestaurant(id: event.id);
+          Restaurant result = await _restaurantRepository.getDetailRestaurant(
+              id: event.id,
+              longtitude: event.longtitude,
+              latitude: event.latitude);
           numberLiked = result.userLikeCount;
           Diner diner = await _dinerRepository.getDiner(id: event.idUser);
           for (int i = 0; i < diner.favoriteRestaurants.length; i++) {
@@ -178,6 +204,22 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
         }
         yield RestaurantLoadedState();
       }
+    }
+
+    if (event is GetRecommendRestaurantEvent) {
+      yield RestaurantLoadingState();
+
+      if (recommendRestaurant.length <= 0) {
+        /*await _restaurantRepository.calRecommendItemContentBased(
+            idRestaurant: data.id);*/
+        recommendRestaurant =
+            await _restaurantRepository.recommendRestaurantContentBased(
+                idRestaurant: data.id,
+                longtitude: event.longtitude,
+                latitude: event.latitude);
+      }
+
+      yield RestaurantLoadedState();
     }
   }
 }

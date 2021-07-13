@@ -63,6 +63,7 @@ class _ProfilePageState extends State<ProfilePage>
                       icon: Icon(Icons.check_rounded, color: kPrimaryColor),
                       onPressed: () {
                         userBloc.add(UpdateProfileEvent(context: context));
+                        userBloc.add(CalRecommendContentBasedEvent());
                       },
                     ))
               ],
@@ -112,8 +113,8 @@ class _ProfilePageState extends State<ProfilePage>
                                 ),
                                 backgroundColor: Color(0xffededed),
                                 onSelected: (val) {
-                                  userBloc.add(
-                                      SelectedAreasEvent(id: tag.id, value: val));
+                                  userBloc.add(SelectedAreasEvent(
+                                      id: tag.id, value: val));
                                 },
                                 selectedColor:
                                     Color(0xFFFF8A00).withOpacity(0.3),
@@ -157,8 +158,8 @@ class _ProfilePageState extends State<ProfilePage>
                                 ),
                                 backgroundColor: Color(0xffededed),
                                 onSelected: (val) {
-                                  userBloc.add(
-                                      SelectedOtherTagEvent(id: tag.id, value: val));
+                                  userBloc.add(SelectedOtherTagEvent(
+                                      id: tag.id, value: val));
                                 },
                                 selectedColor:
                                     Color(0xFFFF8A00).withOpacity(0.3),
@@ -202,8 +203,8 @@ class _ProfilePageState extends State<ProfilePage>
                                 ),
                                 backgroundColor: Color(0xffededed),
                                 onSelected: (val) {
-                                  userBloc.add(
-                                      SelectedOtherTagEvent(id: tag.id, value: val));
+                                  userBloc.add(SelectedOtherTagEvent(
+                                      id: tag.id, value: val));
                                 },
                                 selectedColor:
                                     Color(0xFFFF8A00).withOpacity(0.3),
@@ -247,8 +248,8 @@ class _ProfilePageState extends State<ProfilePage>
                                 ),
                                 backgroundColor: Color(0xffededed),
                                 onSelected: (val) {
-                                  userBloc.add(
-                                      SelectedOtherTagEvent(id: tag.id, value: val));
+                                  userBloc.add(SelectedOtherTagEvent(
+                                      id: tag.id, value: val));
                                 },
                                 selectedColor:
                                     Color(0xFFFF8A00).withOpacity(0.3),
@@ -292,8 +293,8 @@ class _ProfilePageState extends State<ProfilePage>
                                 ),
                                 backgroundColor: Color(0xffededed),
                                 onSelected: (val) {
-                                  userBloc.add(
-                                      SelectedOtherTagEvent(id: tag.id, value: val));
+                                  userBloc.add(SelectedOtherTagEvent(
+                                      id: tag.id, value: val));
                                 },
                                 selectedColor:
                                     Color(0xFFFF8A00).withOpacity(0.3),

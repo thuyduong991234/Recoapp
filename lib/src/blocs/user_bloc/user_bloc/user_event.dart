@@ -188,6 +188,70 @@ class UpdateAccountInfoEvent extends UserEvent {
   String toString() => 'ProductButtonPressed { ... }';
 }
 
+class CalRecommendContentBasedEvent extends UserEvent {
+
+  CalRecommendContentBasedEvent();
+  @override
+  List<Object> get props => [];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
+class CalRecommendCollabEvent extends UserEvent {
+
+  CalRecommendCollabEvent();
+  @override
+  List<Object> get props => [];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
+class FetchRecommendNoUser extends UserEvent {
+
+  FetchRecommendNoUser();
+  @override
+  List<Object> get props => [];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
+class FetchRestaurantHistory extends UserEvent {
+
+  FetchRestaurantHistory();
+  @override
+  List<Object> get props => [];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
+class LoadNearBy extends UserEvent {
+
+  LoadNearBy();
+  @override
+  List<Object> get props => [];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
+class ChangePasswordEvent extends UserEvent {
+  final String newPassword;
+  final String currentPassword;
+  final String confirmPassword;
+  final BuildContext context;
+
+  ChangePasswordEvent({this.newPassword, this.currentPassword, this.confirmPassword, this.context});
+  @override
+  List<Object> get props => [newPassword, currentPassword, confirmPassword, context];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
 
 
 

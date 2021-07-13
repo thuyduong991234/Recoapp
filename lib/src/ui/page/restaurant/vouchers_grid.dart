@@ -75,7 +75,7 @@ class _VouchersGridState extends State<VouchersGrid> {
                                               fit: BoxFit.cover,
                                               image: NetworkImage(restaurantBloc
                                                   .listVouchers[index]
-                                                  .carousel[0]))))),
+                                                  .image))))),
                               //Restaurant name
                               Padding(
                                   padding: const EdgeInsets.only(top: 10),

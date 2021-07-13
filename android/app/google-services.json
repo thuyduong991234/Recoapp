@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1019040554898-8kdrmefb4bi9e363gctsp8cq36g04887.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.recoapp",
+            "certificate_hash": "9cae2c144aed7f992d1b3b2513f6844b75a6d462"
+          }
+        },
+        {
           "client_id": "1019040554898-as4sh9l2euvugusemto11l4uq2b9bv86.apps.googleusercontent.com",
           "client_type": 3
         }

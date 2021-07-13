@@ -5,13 +5,15 @@ import 'package:group_button/group_button.dart';
 import 'package:recoapp/src/blocs/filter_bloc/filter_bloc.dart';
 import 'package:recoapp/src/blocs/filter_bloc/filter_event.dart';
 import 'package:recoapp/src/blocs/filter_bloc/filter_state.dart';
+import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_bloc.dart';
 import 'package:recoapp/src/ui/constants.dart';
 import 'package:recoapp/src/ui/page/home/campaign_carousel.dart';
 import 'package:recoapp/src/ui/page/home/checkbox_filter_list.dart';
 import 'package:recoapp/src/ui/page/home/near_you.dart';
 import 'package:recoapp/src/ui/page/home/recommend_for_you_list.dart';
 import 'package:recoapp/src/ui/page/home/reputation_carousel.dart';
-import 'package:recoapp/src/ui/page/home/restaurant_carousel.dart';
+import 'package:recoapp/src/ui/page/home/restaurant_carousel_collab.dart';
+import 'package:recoapp/src/ui/page/home/restaurant_carousel_history.dart';
 import 'package:recoapp/src/ui/page/home/tag_chips.dart';
 import 'package:recoapp/src/ui/page/search/search.dart';
 
@@ -27,6 +29,7 @@ class _HomePageState extends State<HomePage>
   bool get wantKeepAlive => true;
 
   FilterBloc filterBloc;
+  UserBloc userBloc;
 
   TextEditingController textMinPrice;
   TextEditingController textMaxPrice;
@@ -43,6 +46,8 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     filterBloc = context.read<FilterBloc>();
+    userBloc = context.read<UserBloc>();
+    print("vô home");
     if (filterBloc.minPrice != null)
       textMinPrice = TextEditingController(text: filterBloc.minPrice);
     else
@@ -101,7 +106,9 @@ class _HomePageState extends State<HomePage>
                                           fontWeight: FontWeight.bold))),
                               TextButton(
                                   onPressed: () {
-                                    filterBloc.add(StartFilterEvent());
+                                    filterBloc.add(StartFilterEvent(
+                                        longtitude: userBloc.longtitude,
+                                        latitude: userBloc.latitude));
 
                                     Navigator.push(
                                         context,
@@ -407,14 +414,14 @@ class _HomePageState extends State<HomePage>
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 20.0),
+                      vertical: 7.0, horizontal: 20.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       Text("Tất cả",
                           style: TextStyle(
                               color: kPrimaryColor,
-                              fontSize: 20.0,
+                              fontSize: 18.0,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.2)),
                       SizedBox(
@@ -433,7 +440,7 @@ class _HomePageState extends State<HomePage>
                         child: Text("Gần bạn",
                             style: TextStyle(
                                 color: kTextDisabledColor,
-                                fontSize: 20.0,
+                                fontSize: 18.0,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.2)),
                       ),
@@ -445,18 +452,26 @@ class _HomePageState extends State<HomePage>
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
                     children: [
-                      CampaignCarousel(),
-                      SizedBox(height: 30),
-                      RecommendForYouList(),
-                      SizedBox(height: 30),
-                      RestaurantCarousel("Những người khác đang xem"),
-                      SizedBox(height: 30),
-                      ReputationCarousel(),
-                      SizedBox(height: 30),
-                      RestaurantCarousel("Mới xem gần đây"),
-                      SizedBox(height: 30),
-                      TagChips(),
-                      SizedBox(height: 30),
+                      filterBloc.selectedHome.contains("Có gì hot hôm nay")
+                          ? CampaignCarousel()
+                          : Container(),
+                      filterBloc.selectedHome.contains("Gợi ý cho bạn")
+                          ? RecommendForYouList()
+                          : Container(),
+                      filterBloc.selectedHome
+                              .contains("Những người khác đang xem")
+                          ? RestaurantCarouselCollab(
+                              "Những người khác đang xem")
+                          : Container(),
+                      filterBloc.selectedHome.contains("Địa điểm uy tín")
+                          ? ReputationCarousel()
+                          : Container(),
+                      filterBloc.selectedHome.contains("Mới xem gần đây")
+                          ? RestaurantCarouselHistory("Mới xem gần đây")
+                          : Container(),
+                      filterBloc.selectedHome.contains("Khám phá ẩm thực")
+                          ? TagChips()
+                          : Container()
                     ],
                   ),
                 ),

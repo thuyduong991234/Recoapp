@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_bloc.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_event.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_state.dart';
 import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_bloc.dart';
 import 'package:recoapp/src/ui/constants.dart';
 import 'package:recoapp/src/ui/page/home/campaign_carousel.dart';
+import 'package:recoapp/src/ui/page/restaurant/report_page.dart';
 import 'package:recoapp/src/ui/page/restaurant/reservation_widget.dart';
 import 'package:recoapp/src/ui/page/restaurant/restaurant_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class VoucherPage extends StatefulWidget {
   @override
@@ -21,6 +26,7 @@ class _VoucherPageState extends State<VoucherPage> {
 
   RestaurantBloc restaurantBloc;
   UserBloc userBloc;
+  Completer<GoogleMapController> _controllerGoogleMap = Completer();
 
   @override
   void initState() {
@@ -32,6 +38,35 @@ class _VoucherPageState extends State<VoucherPage> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _launchMapsUrl(double lat, double lon) async {
+    final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lon';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Widget _buildGoogleMap(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: 150,
+      child: GoogleMap(
+        mapType: MapType.normal,
+        initialCameraPosition: CameraPosition(
+            target: LatLng(restaurantBloc.currentVoucher.latitude,
+                restaurantBloc.currentVoucher.longtitude),
+            zoom: 16),
+        onMapCreated: (GoogleMapController controller) {
+          print("vô map");
+          _controllerGoogleMap.complete(controller);
+        },
+        markers: {restaurantBloc.marker},
+        zoomControlsEnabled: false,
+      ),
+    );
   }
 
   @override
@@ -55,6 +90,25 @@ class _VoucherPageState extends State<VoucherPage> {
                           (BuildContext context, bool innerBoxIsScrolled) {
                         return <Widget>[
                           new SliverAppBar(
+                            actions: <Widget>[
+                              Material(
+                                  color: Colors.transparent,
+                                  child: IconButton(
+                                    splashColor: kPrimaryColor,
+                                    icon: Icon(FontAwesomeIcons.flag,
+                                        color: Colors.white, size: 20),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => ReportPage(
+                                              type: 3,
+                                                id: restaurantBloc
+                                                    .currentVoucher.id)),
+                                      );
+                                    },
+                                  )),
+                            ],
                             shadowColor: Colors.transparent,
                             automaticallyImplyLeading: true,
                             leading: Material(
@@ -108,7 +162,7 @@ class _VoucherPageState extends State<VoucherPage> {
                                                   image: NetworkImage(
                                                       restaurantBloc
                                                           .currentVoucher
-                                                          .carousel[0]))),
+                                                          .image))),
                                           height: 160,
                                         ),
                                         Container(
@@ -125,8 +179,7 @@ class _VoucherPageState extends State<VoucherPage> {
                                               children: [
                                                 Row(
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                                      MainAxisAlignment.start,
                                                   children: [
                                                     Row(
                                                       children: [
@@ -149,14 +202,6 @@ class _VoucherPageState extends State<VoucherPage> {
                                                                         .bold)),
                                                       ],
                                                     ),
-                                                    Text("7 km",
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                0xFFFF8A00),
-                                                            fontSize: 14.0,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
                                                   ],
                                                 ),
                                                 SizedBox(height: 10),
@@ -173,38 +218,128 @@ class _VoucherPageState extends State<VoucherPage> {
                                                             FontWeight.w500,
                                                         fontSize: 18.0)),
                                                 SizedBox(height: 10),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Icon(Icons.star,
-                                                        color:
-                                                            Color(0xFFFF8A00),
-                                                        size: 15.0),
-                                                    Icon(Icons.star,
-                                                        color:
-                                                            Color(0xFFFF8A00),
-                                                        size: 15.0),
-                                                    Icon(Icons.star,
-                                                        color:
-                                                            Color(0xFFFF8A00),
-                                                        size: 15.0),
-                                                    Icon(Icons.star,
-                                                        color:
-                                                            Color(0xFFFF8A00),
-                                                        size: 15.0),
-                                                    Icon(Icons.star,
-                                                        color:
-                                                            Color(0xFFFF8A00),
-                                                        size: 15.0),
-                                                    SizedBox(width: 5),
-                                                    Text("100 - 10 lượt đặt",
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                0xFF9A9693),
-                                                            fontSize: 14.0))
-                                                  ],
-                                                ),
+                                                (restaurantBloc.currentVoucher
+                                                                .starRestaurant !=
+                                                            null &&
+                                                        restaurantBloc
+                                                                .currentVoucher
+                                                                .starRestaurant !=
+                                                            0)
+                                                    ? Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        children: <Widget>[
+                                                          Icon(
+                                                              restaurantBloc
+                                                                          .currentVoucher
+                                                                          .starRestaurant >=
+                                                                      1
+                                                                  ? Icons.star
+                                                                  : Icons
+                                                                      .star_half,
+                                                              color: Color(
+                                                                  0xFFFF8A00),
+                                                              size: 15.0),
+                                                          Icon(
+                                                              restaurantBloc
+                                                                          .currentVoucher
+                                                                          .starRestaurant >=
+                                                                      2
+                                                                  ? Icons.star
+                                                                  : Icons
+                                                                      .star_half,
+                                                              color: Color(
+                                                                  0xFFFF8A00),
+                                                              size: 15.0),
+                                                          Icon(
+                                                              restaurantBloc
+                                                                          .currentVoucher
+                                                                          .starRestaurant >=
+                                                                      3
+                                                                  ? Icons.star
+                                                                  : Icons
+                                                                      .star_half,
+                                                              color: Color(
+                                                                  0xFFFF8A00),
+                                                              size: 15.0),
+                                                          Icon(
+                                                              restaurantBloc
+                                                                          .currentVoucher
+                                                                          .starRestaurant >=
+                                                                      4
+                                                                  ? Icons.star
+                                                                  : Icons
+                                                                      .star_half,
+                                                              color: Color(
+                                                                  0xFFFF8A00),
+                                                              size: 15.0),
+                                                          Icon(
+                                                              restaurantBloc
+                                                                          .currentVoucher
+                                                                          .starRestaurant >=
+                                                                      5
+                                                                  ? Icons.star
+                                                                  : Icons
+                                                                      .star_half,
+                                                              color: Color(
+                                                                  0xFFFF8A00),
+                                                              size: 15.0),
+                                                          SizedBox(width: 5),
+                                                          Text(
+                                                              "(" +
+                                                                  restaurantBloc
+                                                                      .currentVoucher
+                                                                      .count
+                                                                      .toString() +
+                                                                  " lượt đặt)",
+                                                              style: TextStyle(
+                                                                  color: Color(
+                                                                      0xFF9A9693),
+                                                                  fontSize:
+                                                                      14.0))
+                                                        ],
+                                                      )
+                                                    : Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        children: <Widget>[
+                                                          Icon(Icons.star,
+                                                              color:
+                                                                  kTextDisabledColor,
+                                                              size: 15.0),
+                                                          Icon(Icons.star,
+                                                              color:
+                                                                  kTextDisabledColor,
+                                                              size: 15.0),
+                                                          Icon(Icons.star,
+                                                              color:
+                                                                  kTextDisabledColor,
+                                                              size: 15.0),
+                                                          Icon(Icons.star,
+                                                              color:
+                                                                  kTextDisabledColor,
+                                                              size: 15.0),
+                                                          Icon(Icons.star,
+                                                              color:
+                                                                  kTextDisabledColor,
+                                                              size: 15.0),
+                                                          SizedBox(width: 5),
+                                                          Text(
+                                                              "(" +
+                                                                  restaurantBloc
+                                                                      .currentVoucher
+                                                                      .count
+                                                                      .toString() +
+                                                                  " lượt đặt)",
+                                                              style: TextStyle(
+                                                                  color: Color(
+                                                                      0xFF9A9693),
+                                                                  fontSize:
+                                                                      14.0))
+                                                        ],
+                                                      ),
                                               ],
                                             )),
                                       ],
@@ -244,9 +379,7 @@ class _VoucherPageState extends State<VoucherPage> {
                                 height: 5.0,
                               ),
                               Text(
-                                  restaurantBloc.currentVoucher.content != null
-                                      ? restaurantBloc.currentVoucher.content
-                                      : '- Chỉ 129K buffet nướng (giá gốc 139K)\n- Ưu đãi chưa bao gồm VAT\n- Ưu đãi áp dụng khi đặt từ 2 khách trở lên\n- Không áp dụng mã chụp màn hình\n- Phụ thu khi mang đồ uống bên ngoài vào theo quy định cửa hàng\n\n- Quy định giá buffet trẻ em:\n+ Cao dưới 1m: Miễn phí\n+ Từ 1m - 1m3: Tính 50% giá đã giảm của người lớn\n+ Trên 1m3: Tính như người lớn\n\nTHỜI GIAN ÁP DỤNG\n- Khung giờ: 10h00 - 23h00\n- Áp dụng tất cả các ngày trong tuần\n- Chỉ áp dụng đặt chỗ không giảm giá các ngày lễ, Tết: 31/12, 1/1, 14/2, 08/3, 10/3 âm lịch, 30/4, 1/5, 1/6, 15/8 âm lịch, 2/9, 20/10, 20/11, 24-25/12\n\nLƯU Ý\n- Không áp dụng đồng thời với các chương trình khác\n- Thông báo mã ngay khi đến cửa hàng để được hướng dẫn nhận khuyến mãi\n- Khách hàng được phép đến sớm hoặc muộn hơn 15 phút so với giờ hẹn đến\n- Mã giảm giá không có giá trị quy đổi thành tiền mặt\n\nHOTLINE\n- Lẩu Nướng Yumei: 034 962 6666\n\nMẸO: Bấm "Theo dõi" cửa hàng để cập nhật những thay đổi về ưu đãi ngay tức thì.',
+                                  '- Chỉ 129K buffet nướng (giá gốc 139K)\n- Ưu đãi chưa bao gồm VAT\n- Ưu đãi áp dụng khi đặt từ 2 khách trở lên\n- Không áp dụng mã chụp màn hình\n- Phụ thu khi mang đồ uống bên ngoài vào theo quy định cửa hàng\n\n- Quy định giá buffet trẻ em:\n+ Cao dưới 1m: Miễn phí\n+ Từ 1m - 1m3: Tính 50% giá đã giảm của người lớn\n+ Trên 1m3: Tính như người lớn\n\nTHỜI GIAN ÁP DỤNG\n- Khung giờ: 10h00 - 23h00\n- Áp dụng tất cả các ngày trong tuần\n- Chỉ áp dụng đặt chỗ không giảm giá các ngày lễ, Tết: 31/12, 1/1, 14/2, 08/3, 10/3 âm lịch, 30/4, 1/5, 1/6, 15/8 âm lịch, 2/9, 20/10, 20/11, 24-25/12\n\nLƯU Ý\n- Không áp dụng đồng thời với các chương trình khác\n- Thông báo mã ngay khi đến cửa hàng để được hướng dẫn nhận khuyến mãi\n- Khách hàng được phép đến sớm hoặc muộn hơn 15 phút so với giờ hẹn đến\n- Mã giảm giá không có giá trị quy đổi thành tiền mặt\n\nHOTLINE\n- Lẩu Nướng Yumei: 034 962 6666\n\nMẸO: Bấm "Theo dõi" cửa hàng để cập nhật những thay đổi về ưu đãi ngay tức thì.',
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 100,
                                   style: TextStyle(
@@ -281,6 +414,10 @@ class _VoucherPageState extends State<VoucherPage> {
                               SizedBox(
                                 height: 5.0,
                               ),
+                              _buildGoogleMap(context),
+                              SizedBox(
+                                height: 15.0,
+                              ),
                               Text(restaurantBloc.currentVoucher.address,
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 2,
@@ -294,7 +431,9 @@ class _VoucherPageState extends State<VoucherPage> {
                                 children: [
                                   FlatButton(
                                       minWidth: 150,
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        launch("tel://0989622590");
+                                      },
                                       color: kBackgroundColor,
                                       textColor: kThirdColor,
                                       child: Row(
@@ -487,6 +626,11 @@ class _VoucherPageState extends State<VoucherPage> {
                                   child: TextButton(
                                       onPressed: () {
                                         restaurantBloc.add(GetRestaurantEvent(
+                                            idUser: userBloc.diner != null
+                                                ? userBloc.diner.id
+                                                : null,
+                                            longtitude: userBloc.longtitude,
+                                            latitude: userBloc.latitude,
                                             id: restaurantBloc
                                                 .currentVoucher.idRestaurant));
                                         Navigator.push(
@@ -513,38 +657,18 @@ class _VoucherPageState extends State<VoucherPage> {
                           child: Row(
                             children: [
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    restaurantBloc.currentVoucher.cuisine !=
-                                            null
-                                        ? Text(
-                                            restaurantBloc
-                                                .currentVoucher.cuisine,
-                                            style: TextStyle(
-                                                height: 1.5,
-                                                fontSize: 16.0,
-                                                color: kThirdColor,
-                                                fontWeight: FontWeight.bold))
-                                        : Container(),
-                                    SizedBox(height: 6),
-                                    restaurantBloc.currentVoucher.suitable !=
-                                            null
-                                        ? Text(
-                                            restaurantBloc
-                                                .currentVoucher.suitable,
-                                            style: TextStyle(
-                                                height: 1.5,
-                                                fontSize: 14.0,
-                                                color: Colors.black))
-                                        : Container(),
-                                  ],
-                                ),
+                                child: restaurantBloc.currentVoucher.suitable !=
+                                        null
+                                    ? Text(
+                                        restaurantBloc.currentVoucher.suitable,
+                                        style: TextStyle(
+                                            height: 1.5,
+                                            fontSize: 14.0,
+                                            color: Colors.black))
+                                    : Container(),
                               ),
                               MaterialButton(
-                                onPressed: () {
-                                  
-                                },
+                                onPressed: () {},
                                 color: kThirdColor,
                                 elevation: 0,
                                 child: Text("Thích",

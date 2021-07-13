@@ -18,6 +18,26 @@ class GetReviewEvent extends ReviewEvent {
   String toString() => 'ProductButtonPressed { ... }';
 }
 
+class GetReviewAfterSearchEvent extends ReviewEvent {
+  GetReviewAfterSearchEvent();
+  @override
+  List<Object> get props => [];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
+class GetMoreReviewEvent extends ReviewEvent {
+  final String textSearch;
+
+  GetMoreReviewEvent({this.textSearch});
+  @override
+  List<Object> get props => [textSearch];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+
 class GetDetailReviewEvent extends ReviewEvent {
   final int id;
   final int idUser;

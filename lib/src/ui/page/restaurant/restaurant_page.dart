@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_bloc.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_event.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_state.dart';
@@ -10,8 +13,10 @@ import 'package:recoapp/src/ui/constants.dart';
 import 'package:recoapp/src/ui/page/home/restaurant_carousel.dart';
 import 'package:recoapp/src/ui/page/restaurant/comment_list.dart';
 import 'package:recoapp/src/ui/page/restaurant/photo_view.dart';
+import 'package:recoapp/src/ui/page/restaurant/report_page.dart';
 import 'package:recoapp/src/ui/page/restaurant/reservation_widget.dart';
 import 'package:recoapp/src/ui/page/restaurant/vouchers_grid.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RestaurantPage extends StatefulWidget {
   @override
@@ -26,6 +31,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
     'https://lauwang.vn/wp-content/uploads/2020/10/LAM03924.jpg',
     'https://lauwang.vn/wp-content/uploads/2020/10/LAM03924.jpg'
   ];
+
+  Completer<GoogleMapController> _controllerGoogleMap = Completer();
 
   @override
   void initState() {
@@ -202,7 +209,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       Container(
                         margin: EdgeInsets.only(right: 10, left: 10),
                         height: 12,
-                        width: restaurantBloc.data.star5 != null && restaurantBloc.data.commentCount > 0
+                        width: restaurantBloc.data.star5 != null &&
+                                restaurantBloc.data.commentCount > 0
                             ? (restaurantBloc.data.star5 * 190.0) /
                                 restaurantBloc.data.commentCount
                             : 0,
@@ -221,7 +229,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       Container(
                         margin: EdgeInsets.only(right: 10, left: 10),
                         height: 12,
-                        width: restaurantBloc.data.star4 != null && restaurantBloc.data.commentCount > 0
+                        width: restaurantBloc.data.star4 != null &&
+                                restaurantBloc.data.commentCount > 0
                             ? (restaurantBloc.data.star4 * 190.0) /
                                 restaurantBloc.data.commentCount
                             : 0,
@@ -240,7 +249,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       Container(
                         margin: EdgeInsets.only(right: 10, left: 10),
                         height: 12,
-                        width: restaurantBloc.data.star3 != null && restaurantBloc.data.commentCount > 0
+                        width: restaurantBloc.data.star3 != null &&
+                                restaurantBloc.data.commentCount > 0
                             ? (restaurantBloc.data.star3 * 190.0) /
                                 restaurantBloc.data.commentCount
                             : 0,
@@ -259,7 +269,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       Container(
                         margin: EdgeInsets.only(right: 10, left: 10),
                         height: 12,
-                        width: restaurantBloc.data.star2 != null && restaurantBloc.data.commentCount > 0
+                        width: restaurantBloc.data.star2 != null &&
+                                restaurantBloc.data.commentCount > 0
                             ? (restaurantBloc.data.star2 * 190.0) /
                                 restaurantBloc.data.commentCount
                             : 0,
@@ -278,7 +289,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       Container(
                         margin: EdgeInsets.only(right: 10, left: 10),
                         height: 12,
-                        width: restaurantBloc.data.star1 != null && restaurantBloc.data.commentCount > 0
+                        width: restaurantBloc.data.star1 != null &&
+                                restaurantBloc.data.commentCount > 0
                             ? (restaurantBloc.data.star1 * 190.0) /
                                 restaurantBloc.data.commentCount
                             : 0,
@@ -363,6 +375,35 @@ class _RestaurantPageState extends State<RestaurantPage> {
 
   double appear(double shrink) => 1 - shrink / 328;
 
+  void _launchMapsUrl(double lat, double lon) async {
+    final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lon';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Widget _buildGoogleMap(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: 150,
+      child: GoogleMap(
+        mapType: MapType.normal,
+        initialCameraPosition: CameraPosition(
+            target: LatLng(
+                restaurantBloc.data.latitude, restaurantBloc.data.longtitude),
+            zoom: 16),
+        onMapCreated: (GoogleMapController controller) {
+          print("vô map");
+          _controllerGoogleMap.complete(controller);
+        },
+        markers: {restaurantBloc.marker},
+        zoomControlsEnabled: false,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -379,6 +420,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
             ));
           else {
             listPhotos = restaurantBloc.data.carousel;
+            restaurantBloc.add(GetRecommendRestaurantEvent(
+                latitude: userBloc.latitude, longtitude: userBloc.longtitude));
           }
           return DefaultTabController(
               length: 3,
@@ -389,6 +432,25 @@ class _RestaurantPageState extends State<RestaurantPage> {
                               (BuildContext context, bool innerBoxIsScrolled) {
                             return <Widget>[
                               new SliverAppBar(
+                                actions: <Widget>[
+                                  Material(
+                                      color: Colors.transparent,
+                                      child: IconButton(
+                                        splashColor: kPrimaryColor,
+                                        icon: Icon(FontAwesomeIcons.flag,
+                                            color: Colors.white, size: 20),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ReportPage(
+                                                        type: 1,
+                                                        id: restaurantBloc.data.id)),
+                                          );
+                                        },
+                                      )),
+                                ],
                                 shadowColor: Colors.transparent,
                                 automaticallyImplyLeading: true,
                                 leading: Material(
@@ -412,15 +474,17 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                   top = constraints.biggest.height;
                                   return FlexibleSpaceBar(
                                       titlePadding:
-                                          EdgeInsets.only(left: 50, right: 5),
+                                          EdgeInsets.only(left: 50, right: 50),
                                       centerTitle: false,
                                       title: Container(
                                           padding: EdgeInsets.symmetric(
-                                              vertical: 10),
+                                              vertical: 15),
                                           child: Opacity(
                                               opacity: top == 56.0 ? 1.0 : 0.0,
                                               child: Text(
                                                   restaurantBloc.data.name,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 16,
@@ -487,11 +551,21 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                                                     print(
                                                                         "vô đã thích");
                                                                     restaurantBloc.add(UserLikeRestaurantEvent(
+                                                                        longtitude:
+                                                                            userBloc
+                                                                                .longtitude,
+                                                                        latitude:
+                                                                            userBloc
+                                                                                .latitude,
                                                                         id: restaurantBloc
                                                                             .data
                                                                             .id,
                                                                         isLiked:
-                                                                            true, idUser: userBloc.diner != null ? userBloc.diner.id : null));
+                                                                            true,
+                                                                        idUser: userBloc.diner !=
+                                                                                null
+                                                                            ? userBloc.diner.id
+                                                                            : null));
                                                                   },
                                                                   child: Container(
                                                                       width: 85.0,
@@ -517,11 +591,21 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                                                     print(
                                                                         "vô chưa thích");
                                                                     restaurantBloc.add(UserLikeRestaurantEvent(
+                                                                        longtitude:
+                                                                            userBloc
+                                                                                .longtitude,
+                                                                        latitude:
+                                                                            userBloc
+                                                                                .latitude,
                                                                         id: restaurantBloc
                                                                             .data
                                                                             .id,
                                                                         isLiked:
-                                                                            false, idUser: userBloc.diner != null ? userBloc.diner.id : null));
+                                                                            false,
+                                                                        idUser: userBloc.diner !=
+                                                                                null
+                                                                            ? userBloc.diner.id
+                                                                            : null));
                                                                   },
                                                                   child: Container(
                                                                       width: 85.0,
@@ -635,7 +719,9 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                                                             width:
                                                                                 5),
                                                                         Text(
-                                                                            restaurantBloc.data.commentCount.toString() +
+                                                                            "(" +
+                                                                                restaurantBloc.data.commentCount.toString() +
+                                                                                ") " +
                                                                                 " - " +
                                                                                 restaurantBloc.data.reservationCount.toString() +
                                                                                 " lượt đặt",
@@ -731,7 +817,12 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                                                               fontSize: 14.0)),
                                                                     ],
                                                                   ),
-                                                                  Text("7 km",
+                                                                  Text(
+                                                                      restaurantBloc
+                                                                              .data
+                                                                              .distance
+                                                                              .toString() +
+                                                                          " km",
                                                                       style: TextStyle(
                                                                           color: Color(
                                                                               0xFFFF8A00),
@@ -893,89 +984,6 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                           )
                                         : Container()),
                                 SizedBox(height: 20),
-                                Container(
-                                  margin: EdgeInsets.only(bottom: 20),
-                                  padding: EdgeInsets.only(
-                                      left: 10, right: 20, top: 10),
-                                  color: Colors.white,
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Container(
-                                              height: 50,
-                                              width: 50,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.amber.shade50,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          90)),
-                                              child: Center(
-                                                child: FaIcon(
-                                                    FontAwesomeIcons.award,
-                                                    size: 30,
-                                                    color: tagChip),
-                                              )),
-                                          SizedBox(width: 10),
-                                          Text(
-                                            "Bạn sẽ muốn đến nhà hàng này chứ ?",
-                                            style: TextStyle(
-                                                color: kTextThirdColor,
-                                                fontSize: 16.0),
-                                          )
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Material(
-                                            color: Colors.transparent,
-                                            child: TextButton(
-                                                onPressed: () {},
-                                                child: Row(
-                                                  children: [
-                                                    FaIcon(
-                                                        FontAwesomeIcons.grin,
-                                                        size: 23,
-                                                        color:
-                                                            kTextDisabledColor),
-                                                    SizedBox(width: 10),
-                                                    Text("Có",
-                                                        style: TextStyle(
-                                                            color:
-                                                                kTextThirdColor,
-                                                            fontSize: 14.0))
-                                                  ],
-                                                )),
-                                          ),
-                                          SizedBox(width: 20),
-                                          Material(
-                                            color: Colors.transparent,
-                                            child: TextButton(
-                                                onPressed: () {},
-                                                child: Row(
-                                                  children: [
-                                                    FaIcon(
-                                                        FontAwesomeIcons
-                                                            .frownOpen,
-                                                        size: 23,
-                                                        color:
-                                                            kTextDisabledColor),
-                                                    SizedBox(width: 10),
-                                                    Text("Không",
-                                                        style: TextStyle(
-                                                            color:
-                                                                kTextThirdColor,
-                                                            fontSize: 14.0))
-                                                  ],
-                                                )),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
                                 BlocProvider.value(
                                     value: restaurantBloc,
                                     child: buildRating(context)),
@@ -1008,6 +1016,10 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                       SizedBox(
                                         height: 5.0,
                                       ),
+                                      _buildGoogleMap(context),
+                                      SizedBox(
+                                        height: 15.0,
+                                      ),
                                       Text(restaurantBloc.data.detailAddress,
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 2,
@@ -1023,7 +1035,9 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                         children: [
                                           FlatButton(
                                               minWidth: 150,
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                launch("tel://0989622590");
+                                              },
                                               color: kBackgroundColor,
                                               textColor: kThirdColor,
                                               child: Row(
@@ -1041,7 +1055,13 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                           SizedBox(width: 30),
                                           FlatButton(
                                               minWidth: 150,
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                _launchMapsUrl(
+                                                    restaurantBloc
+                                                        .data.latitude,
+                                                    restaurantBloc
+                                                        .data.longtitude);
+                                              },
                                               color: kBackgroundColor,
                                               textColor: kThirdColor,
                                               child: Row(
@@ -1475,7 +1495,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      RestaurantCarousel("Có thể bạn quan tâm")
+                                      RestaurantCarousel("Có thể bạn quan tâm",
+                                          restaurantBloc.recommendRestaurant)
                                     ],
                                   ),
                                 ),
@@ -1664,26 +1685,6 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                       BlocProvider.value(
                                           value: restaurantBloc,
                                           child: VouchersGrid()),
-                                      (restaurantBloc.listVouchers != null &&
-                                              restaurantBloc
-                                                      .listVouchers.length >
-                                                  0)
-                                          ? Center(
-                                              child: TextButton(
-                                                  style: ButtonStyle(),
-                                                  onPressed: () {
-                                                    photoView(context);
-                                                  },
-                                                  child: Text("Xem tất cả",
-                                                      style: TextStyle(
-                                                          decoration:
-                                                              TextDecoration
-                                                                  .none,
-                                                          inherit: false,
-                                                          color: kThirdColor,
-                                                          fontSize: 14.0))),
-                                            )
-                                          : Container()
                                     ],
                                   ),
                                 ),
@@ -1694,7 +1695,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      RestaurantCarousel("Có thể bạn quan tâm")
+                                      RestaurantCarousel("Có thể bạn quan tâm",
+                                          restaurantBloc.recommendRestaurant)
                                     ],
                                   ),
                                 ),

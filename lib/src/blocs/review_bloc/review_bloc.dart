@@ -26,6 +26,7 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
   bool isLiked = false;
   bool isLikedRestaurant = false;
   Diner diner = null;
+  bool isSearch = false;
 
   final _imageRepository = ImageRepository();
   final _reviewRepository = ReviewRepository();
@@ -39,18 +40,19 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
   // TODO: implement initialState
   ReviewState get initialState => ReviewInitial();
 
-  Future<ReviewState> _mapReviewFetchToState(ReviewState state) async {
+  Future<ReviewState> _mapReviewFetchToState(
+      ReviewState state, bool isRefresh) async {
     print("vô 2");
     if (state.hasReachedMax) return state;
     try {
       print("vô 3");
-      if (state.status == ReviewStatus.initial) {
+      if (state.status == ReviewStatus.initial || isRefresh) {
         print("vô 4");
         final reviews = await _reviewRepository.fetchAllReviews(page: page);
         List<SimpleReview> listdata = reviews.elementAt(1);
         totalElements = reviews.elementAt(0);
         totalPage = reviews.elementAt(2);
-        return state.copyWith(
+        return ReviewLoadedState(
           status: ReviewStatus.success,
           listData: listdata,
           hasReachedMax: false,
@@ -124,7 +126,16 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
   @override
   Stream<ReviewState> mapEventToState(event) async* {
     if (event is GetReviewEvent) {
-      yield await _mapReviewFetchToState(state);
+      isSearch = false;
+      yield await _mapReviewFetchToState(state, true);
+    }
+
+    if (event is GetReviewAfterSearchEvent) {
+      yield ReviewLoadingState(
+          status: state.status, listData: state.listData, hasReachedMax: false);
+      page = 0;
+      isSearch = false;
+      yield await _mapReviewFetchToState(state, true);
     }
 
     if (event is SearchReviewEvent) {
@@ -135,7 +146,21 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
             listData: state.listData,
             hasReachedMax: false);
       }
+      isSearch = true;
       yield await _mapReviewSearchToState(state, event.searchBy);
+    }
+
+    if (event is GetMoreReviewEvent) {
+      yield ReviewLoadingState(
+          status: state.status,
+          listData: state.listData,
+          hasReachedMax: state.hasReachedMax);
+
+      if (isSearch) {
+        yield await _mapReviewSearchToState(state, event.textSearch);
+      } else {
+        yield await _mapReviewFetchToState(state, false);
+      }
     }
 
     if (event is GetDetailReviewEvent) {

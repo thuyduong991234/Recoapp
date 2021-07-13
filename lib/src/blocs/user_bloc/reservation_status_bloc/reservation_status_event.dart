@@ -29,3 +29,16 @@ class GetMoreEvent extends ReservationStatusEvent {
   String toString() => 'ProductButtonPressed { ... }';
 }
 
+class CancelledReservationEvent extends ReservationStatusEvent {
+  final int id;
+  final int typeList;
+  final int index;
+
+  CancelledReservationEvent({this.id, this.typeList, this.index});
+  @override
+  List<Object> get props => [id, typeList, index];
+
+  @override
+  String toString() => 'ProductButtonPressed { ... }';
+}
+

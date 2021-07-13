@@ -7,7 +7,7 @@ import 'package:recoapp/src/ui/constants.dart';
 
 class VoucherApiProvider {
   Future<List<Voucher>> fetchAllVouchers({int idRestaurant}) async {
-    var url = Uri.parse(baseUrl + "/vouchers/restaurant/" + idRestaurant.toString() + "?size=10");
+    var url = Uri.parse(baseUrl + "/vouchers/restaurant/" + idRestaurant.toString() + "?size=20");
     final response = await http
         .get(url, headers: {'Accept': 'application/json; charset=UTF-8'});
 
@@ -40,6 +40,26 @@ class VoucherApiProvider {
 
       print(voucher.code);
       return voucher;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load tag');
+    }
+  }
+
+  Future<List<Voucher>> fetchTop10NewestVouchers() async {
+    var url = Uri.parse(baseUrl + "/vouchers/top10");
+    final response = await http
+        .get(url, headers: {'Accept': 'application/json; charset=UTF-8'});
+
+    var jsonResponse = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      List<Voucher> allVouchers = [];
+      jsonResponse['data'].forEach((item) => {allVouchers.add(Voucher.fromJsonMap(item))});
+      return allVouchers;
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.

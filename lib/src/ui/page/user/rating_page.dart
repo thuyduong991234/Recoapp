@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:recoapp/src/blocs/user_bloc/rating_bloc/rating_bloc.dart';
 import 'package:recoapp/src/blocs/user_bloc/rating_bloc/rating_event.dart';
 import 'package:recoapp/src/blocs/user_bloc/rating_bloc/rating_state.dart';
+import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_bloc.dart';
+import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_event.dart';
 import 'package:recoapp/src/ui/constants.dart';
 
 class RatingPage extends StatefulWidget {
@@ -27,11 +29,13 @@ class _RatingPageState extends State<RatingPage> {
   TextEditingController textComment = TextEditingController();
   RatingBloc ratingBloc;
   FocusNode myFocusNode;
+  UserBloc userBloc;
 
   @override
   void initState() {
     super.initState();
     ratingBloc = context.read<RatingBloc>();
+    userBloc = context.read<UserBloc>();
     myFocusNode = FocusNode();
     starFood = 5;
     starService = 5;
@@ -626,16 +630,16 @@ class _RatingPageState extends State<RatingPage> {
                 child: FlatButton(
                   onPressed: () {
                     ratingBloc.add(SubmitRatingEvent(
-                      context: context,
-                      starFood: starFood,
-                      starService: starService,
-                      starAmbious: starAmbious,
-                      starNoise: starNoise,
-                      comment: textComment.text,
-                      photos: ratingBloc.listPhotos,
-                      idRestaurant: widget.idRestaurant,
-                      idReservation: widget.idReservation
-                    ));
+                        context: context,
+                        starFood: starFood,
+                        starService: starService,
+                        starAmbious: starAmbious,
+                        starNoise: starNoise,
+                        comment: textComment.text,
+                        photos: ratingBloc.listPhotos,
+                        idRestaurant: widget.idRestaurant,
+                        idReservation: widget.idReservation));
+                    userBloc.add(CalRecommendCollabEvent());
                   },
                   color: kThirdColor,
                   textColor: Colors.white,

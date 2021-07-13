@@ -14,6 +14,8 @@ import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_bloc.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_event.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_state.dart';
 import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_bloc.dart';
+import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_event.dart';
+import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_state.dart';
 import 'package:recoapp/src/ui/constants.dart';
 import 'package:recoapp/src/ui/page/home/checkbox_filter_list.dart';
 import 'package:recoapp/src/ui/page/restaurant/restaurant_page.dart';
@@ -53,7 +55,7 @@ class _NearYouPageState extends State<NearYouPage>
   void initState() {
     super.initState();
     filterBloc = context.read<FilterBloc>();
-    userBloc = context.read<UserBloc>();
+    userBloc = context.read<UserBloc>()..add(LoadNearBy());
     if (filterBloc.minPrice != null)
       textMinPrice = TextEditingController(text: filterBloc.minPrice);
     else
@@ -430,9 +432,31 @@ class _NearYouPageState extends State<NearYouPage>
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return BlocBuilder<FilterBloc, FilterState>(
-        bloc: filterBloc,
+    return BlocBuilder<UserBloc, UserState>(
+        bloc: userBloc,
         builder: (context, state) {
+          if (state is UserLoadingState) {
+            return Scaffold(
+                body: SafeArea(
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child: Stack(
+                      children: <Widget>[
+                        _buildGoogleMap(context),
+                        Center(
+                            child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(kPrimaryColor),
+                        )),
+                        _buildTopBar(context),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ));
+          }
           return Scaffold(
               body: SafeArea(
             child: Column(
@@ -549,6 +573,13 @@ class _NearYouPageState extends State<NearYouPage>
                                               RestaurantBloc(
                                                   RestaurantInitial())
                                                 ..add(GetRestaurantEvent(
+                                                    idUser:
+                                                        userBloc.diner != null
+                                                            ? userBloc.diner.id
+                                                            : null,
+                                                    longtitude:
+                                                        userBloc.longtitude,
+                                                    latitude: userBloc.latitude,
                                                     id: userBloc
                                                         .nearBy[index].id)),
                                           child: RestaurantPage(),
@@ -698,7 +729,12 @@ class _NearYouPageState extends State<NearYouPage>
                                                     : Color(0xFFFF8A00),
                                                 size: 15.0),
                                             SizedBox(width: 5),
-                                            Text("(100)",
+                                            Text(
+                                                "(" +
+                                                    userBloc.nearBy[index]
+                                                        .commentCount
+                                                        .toString() +
+                                                    ")",
                                                 style: TextStyle(
                                                     color: kTextDisabledColor,
                                                     fontSize: 12.0)),
@@ -724,7 +760,12 @@ class _NearYouPageState extends State<NearYouPage>
                                                 color: kTextDisabledColor,
                                                 size: 15.0),
                                             SizedBox(width: 5),
-                                            Text("(100)",
+                                            Text(
+                                                "(" +
+                                                    userBloc.nearBy[index]
+                                                        .commentCount
+                                                        .toString() +
+                                                    ")",
                                                 style: TextStyle(
                                                     color: kTextDisabledColor,
                                                     fontSize: 12.0)),

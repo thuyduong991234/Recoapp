@@ -34,7 +34,7 @@ class _MyReservationPageState extends State<MyReservationPage>
     _scrollControllerTab3.addListener(_onScrollTab3);
     _scrollControllerTab5.addListener(_onScrollTab5);
     reservationStatusBloc = context.read<ReservationStatusBloc>();
-    userBloc =  context.read<UserBloc>();
+    userBloc = context.read<UserBloc>();
 
     print("userBloc" + userBloc.token);
   }
@@ -50,22 +50,30 @@ class _MyReservationPageState extends State<MyReservationPage>
 
   void _onScrollTab1() {
     if (_isBottomTab1)
-      context.read<ReservationStatusBloc>().add(GetMoreEvent(idUser: userBloc.diner.id, type: 1));
+      context
+          .read<ReservationStatusBloc>()
+          .add(GetMoreEvent(idUser: userBloc.diner.id, type: 1));
   }
 
   void _onScrollTab2() {
     if (_isBottomTab2)
-      context.read<ReservationStatusBloc>().add(GetMoreEvent(idUser: userBloc.diner.id, type: 2));
+      context
+          .read<ReservationStatusBloc>()
+          .add(GetMoreEvent(idUser: userBloc.diner.id, type: 2));
   }
 
   void _onScrollTab3() {
     if (_isBottomTab3)
-      context.read<ReservationStatusBloc>().add(GetMoreEvent(idUser: userBloc.diner.id, type: 3));
+      context
+          .read<ReservationStatusBloc>()
+          .add(GetMoreEvent(idUser: userBloc.diner.id, type: 3));
   }
 
   void _onScrollTab5() {
     if (_isBottomTab5)
-      context.read<ReservationStatusBloc>().add(GetMoreEvent(idUser: userBloc.diner.id, type: 4));
+      context
+          .read<ReservationStatusBloc>()
+          .add(GetMoreEvent(idUser: userBloc.diner.id, type: 4));
   }
 
   bool get _isBottomTab1 {
@@ -277,15 +285,20 @@ class _MyReservationPageState extends State<MyReservationPage>
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ReservationDetail(
-                                                        reservation: state
-                                                                .listWaitApprove[
-                                                            index],
-                                                        isRating: false,
-                                                        isReservation: false,
-                                                        isCancel: true,
-                                                      )))
+                                                builder: (context) =>
+                                                    BlocProvider.value(
+                                                  child: ReservationDetail(
+                                                    typeList: 0,
+                                                    index: index,
+                                                    reservation: state
+                                                        .listWaitApprove[index],
+                                                    isRating: false,
+                                                    isReservation: false,
+                                                    isCancel: true,
+                                                  ),
+                                                  value: reservationStatusBloc,
+                                                ),
+                                              ))
                                         },
                                     child: Padding(
                                       padding: EdgeInsets.only(
@@ -582,7 +595,51 @@ class _MyReservationPageState extends State<MyReservationPage>
                                                     )),
                                                 Expanded(
                                                     child: TextButton(
-                                                        onPressed: () {},
+                                                        onPressed:
+                                                            () => showDialog<
+                                                                    String>(
+                                                                  context:
+                                                                      context,
+                                                                  builder: (BuildContext
+                                                                          context) =>
+                                                                      AlertDialog(
+                                                                    title: const Text(
+                                                                        'HỦY YÊU CẦU ĐẶT CHỖ',
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                kThirdColor,
+                                                                            fontSize:
+                                                                                16.0)),
+                                                                    content:
+                                                                        const Text(
+                                                                            'Bạn có muốn hủy yêu cầu đặt chỗ này không?'),
+                                                                    actions: <
+                                                                        Widget>[
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () =>
+                                                                                Navigator.of(context).pop(),
+                                                                        child: const Text(
+                                                                            'KHÔNG',
+                                                                            style:
+                                                                                TextStyle(color: kPrimaryColor)),
+                                                                      ),
+                                                                      TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            reservationStatusBloc.add(CancelledReservationEvent(
+                                                                                typeList: 0,
+                                                                                id: state.listWaitApprove[index].id,
+                                                                                index: index));
+
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child: const Text(
+                                                                              'CÓ',
+                                                                              style: TextStyle(color: kPrimaryColor))),
+                                                                    ],
+                                                                  ),
+                                                                ),
                                                         child: Text("Hủy",
                                                             textAlign:
                                                                 TextAlign.end,
@@ -628,14 +685,21 @@ class _MyReservationPageState extends State<MyReservationPage>
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      ReservationDetail(
-                                                        reservation:
-                                                            state.listApproved[
+                                                      BlocProvider.value(
+                                                          child:
+                                                              ReservationDetail(
+                                                            typeList: 1,
+                                                            index: index,
+                                                            reservation: state
+                                                                    .listApproved[
                                                                 index],
-                                                        isRating: false,
-                                                        isReservation: false,
-                                                        isCancel: true,
-                                                      )))
+                                                            isRating: false,
+                                                            isReservation:
+                                                                false,
+                                                            isCancel: true,
+                                                          ),
+                                                          value:
+                                                              reservationStatusBloc)))
                                         },
                                     child: Padding(
                                       padding: EdgeInsets.only(
@@ -932,7 +996,51 @@ class _MyReservationPageState extends State<MyReservationPage>
                                                     )),
                                                 Expanded(
                                                     child: TextButton(
-                                                        onPressed: () {},
+                                                        onPressed:
+                                                            () => showDialog<
+                                                                    String>(
+                                                                  context:
+                                                                      context,
+                                                                  builder: (BuildContext
+                                                                          context) =>
+                                                                      AlertDialog(
+                                                                    title: const Text(
+                                                                        'HỦY YÊU CẦU ĐẶT CHỖ',
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                kThirdColor,
+                                                                            fontSize:
+                                                                                16.0)),
+                                                                    content:
+                                                                        const Text(
+                                                                            'Bạn có muốn hủy yêu cầu đặt chỗ này không?'),
+                                                                    actions: <
+                                                                        Widget>[
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () =>
+                                                                                Navigator.of(context).pop(),
+                                                                        child: const Text(
+                                                                            'KHÔNG',
+                                                                            style:
+                                                                                TextStyle(color: kPrimaryColor)),
+                                                                      ),
+                                                                      TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            reservationStatusBloc.add(CancelledReservationEvent(
+                                                                                typeList: 1,
+                                                                                id: state.listApproved[index].id,
+                                                                                index: index));
+
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child: const Text(
+                                                                              'CÓ',
+                                                                              style: TextStyle(color: kPrimaryColor))),
+                                                                    ],
+                                                                  ),
+                                                                ),
                                                         child: Text("Hủy",
                                                             textAlign:
                                                                 TextAlign.end,
@@ -978,13 +1086,27 @@ class _MyReservationPageState extends State<MyReservationPage>
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      ReservationDetail(
-                                                        reservation: state
-                                                            .listHistory[index],
-                                                        isRating: true,
-                                                        isReservation: false,
-                                                        isCancel: false,
-                                                      )))
+                                                      BlocProvider.value(
+                                                          value:
+                                                              reservationStatusBloc,
+                                                          child:
+                                                              ReservationDetail(
+                                                            typeList: 2,
+                                                            index: index,
+                                                            reservation: state
+                                                                    .listHistory[
+                                                                index],
+                                                            isRating: state
+                                                                        .listHistory[
+                                                                            index]
+                                                                        .commentId !=
+                                                                    null
+                                                                ? false
+                                                                : true,
+                                                            isReservation:
+                                                                false,
+                                                            isCancel: false,
+                                                          ))))
                                         },
                                     child: Padding(
                                       padding: EdgeInsets.only(
@@ -1277,31 +1399,36 @@ class _MyReservationPageState extends State<MyReservationPage>
                                                                     12.0)),
                                                       ],
                                                     )),
-                                                Expanded(
-                                                    child: TextButton(
-                                                        onPressed: () {
-                                                          Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                  builder:
-                                                                      (context) =>
+                                                state.listHistory[index]
+                                                            .commentId ==
+                                                        null
+                                                    ? Expanded(
+                                                        child: TextButton(
+                                                            onPressed: () {
+                                                              Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder: (context) =>
                                                                           BlocProvider(
                                                                             child:
                                                                                 RatingPage(idReservation: state.listHistory[index].id, idRestaurant: state.listHistory[index].idRestaurant),
                                                                             create: (BuildContext context) =>
                                                                                 RatingBloc(RatingInitial()),
                                                                           )));
-                                                        },
-                                                        child: Text("Đánh giá",
-                                                            textAlign:
-                                                                TextAlign.end,
-                                                            style: TextStyle(
-                                                                fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                color: Color(
-                                                                    0xFFFECE52)))))
+                                                            },
+                                                            child: Text("Đánh giá",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .end,
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: Color(
+                                                                        0xFFFECE52)))))
+                                                    : Container()
                                               ],
                                             ),
                                           ),
@@ -1346,15 +1473,20 @@ class _MyReservationPageState extends State<MyReservationPage>
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ReservationDetail(
-                                                        reservation:
-                                                            state.listCanceled[
-                                                                index],
-                                                        isRating: false,
-                                                        isReservation: false,
-                                                        isCancel: false,
-                                                      )))
+                                                builder: (context) =>
+                                                    BlocProvider.value(
+                                                  child: ReservationDetail(
+                                                    typeList: 2,
+                                                    index: index,
+                                                    reservation: state
+                                                        .listCanceled[index],
+                                                    isRating: false,
+                                                    isReservation: false,
+                                                    isCancel: false,
+                                                  ),
+                                                  value: reservationStatusBloc,
+                                                ),
+                                              ))
                                         },
                                     child: Padding(
                                       padding: EdgeInsets.only(

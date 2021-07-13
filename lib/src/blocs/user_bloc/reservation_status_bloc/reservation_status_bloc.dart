@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:recoapp/src/blocs/user_bloc/reservation_status_bloc/reservation_status_event.dart';
 import 'package:recoapp/src/blocs/user_bloc/reservation_status_bloc/reservation_status_state.dart';
 import 'package:recoapp/src/models/comment.dart';
@@ -46,13 +48,82 @@ class ReservationStatusBloc
 
       yield await _mapResultFetchMoreToState(state, event.type, event.idUser);
     }
+
+    if (event is CancelledReservationEvent) {
+      yield ReservationStatusLoadingState(
+          status: state.status,
+          listWaitApprove: state.listWaitApprove,
+          listApproved: state.listApproved,
+          listCanceled: state.listCanceled,
+          listHistory: state.listHistory,
+          listComments: state.listComments,
+          hasReachedMaxWaitApprove: state.hasReachedMaxWaitApprove,
+          hasReachedMaxApproved: state.hasReachedMaxApproved,
+          hasReachedMaxCanceled: state.hasReachedMaxCanceled,
+          hasReachedMaxHistory: state.hasReachedMaxHistory,
+          hasReachedMaxComment: state.hasReachedMaxComment);
+
+      String result = await _reservationRepsitory.cancelledReservation(
+          idReservation: event.id);
+
+      if (result == "204") {
+        Fluttertoast.showToast(
+            msg: "Hủy yêu cầu đặt chỗ thành công",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            timeInSecForIosWeb: 5);
+
+        if (event.typeList == 0) {
+          Reservation re = state.listWaitApprove.elementAt(event.index);
+
+          List<Reservation> a = List.of(state.listWaitApprove)..removeAt(event.index);
+
+          List<Reservation> b = List.of(state.listCanceled)..add(re);
+          yield ReservationStatusLoadedState(
+            status: state.status,
+            listWaitApprove: a,
+            listApproved: state.listApproved,
+            listCanceled: b,
+            listHistory: state.listHistory,
+            listComments: state.listComments,
+            hasReachedMaxWaitApprove: state.hasReachedMaxWaitApprove,
+            hasReachedMaxApproved: state.hasReachedMaxApproved,
+            hasReachedMaxCanceled: state.hasReachedMaxCanceled,
+            hasReachedMaxHistory: state.hasReachedMaxHistory,
+            hasReachedMaxComment: state.hasReachedMaxComment);
+        } else {
+          Reservation re = state.listApproved.elementAt(event.index);
+
+          List<Reservation> a = List.of(state.listApproved)..removeAt(event.index);
+          List<Reservation> b = List.of(state.listCanceled)..add(re);
+
+          yield ReservationStatusLoadedState(
+            status: state.status,
+            listWaitApprove: state.listWaitApprove,
+            listApproved: a,
+            listCanceled: b,
+            listHistory: state.listHistory,
+            listComments: state.listComments,
+            hasReachedMaxWaitApprove: state.hasReachedMaxWaitApprove,
+            hasReachedMaxApproved: state.hasReachedMaxApproved,
+            hasReachedMaxCanceled: state.hasReachedMaxCanceled,
+            hasReachedMaxHistory: state.hasReachedMaxHistory,
+            hasReachedMaxComment: state.hasReachedMaxComment);
+        }
+
+        
+      }
+    }
   }
 
   Future<ReservationStatusState> _mapResultFetchToState(
       ReservationStatusState state, int idUser) async {
     try {
-      List<Object> waitApprove = await _reservationRepsitory
-          .fetchReservationByType(idUser: idUser, type: 1, page: pageWaitApprove);
+      List<Object> waitApprove =
+          await _reservationRepsitory.fetchReservationByType(
+              idUser: idUser, type: 1, page: pageWaitApprove);
       List<Object> approved = await _reservationRepsitory
           .fetchReservationByType(idUser: idUser, type: 2, page: pageApproved);
       List<Object> canceled = await _reservationRepsitory
@@ -180,8 +251,9 @@ class ReservationStatusBloc
     if (type == 4) {
       if (state.hasReachedMaxHistory) return state;
       try {
-        List<Object> history = await _reservationRepsitory
-            .fetchReservationByType(idUser: idUser, type: 1, page: ++pageHistory);
+        List<Object> history =
+            await _reservationRepsitory.fetchReservationByType(
+                idUser: idUser, type: 1, page: ++pageHistory);
 
         List<Reservation> data = history[0];
 

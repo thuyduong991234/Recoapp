@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_bloc.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_event.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_state.dart';
@@ -10,6 +11,7 @@ import 'package:recoapp/src/blocs/review_bloc/review_state.dart';
 import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_bloc.dart';
 import 'package:recoapp/src/ui/constants.dart';
 import 'package:recoapp/src/ui/page/restaurant/photo_view.dart';
+import 'package:recoapp/src/ui/page/restaurant/report_page.dart';
 import 'package:recoapp/src/ui/page/restaurant/restaurant_page.dart';
 
 class ReviewPage extends StatefulWidget {
@@ -31,7 +33,9 @@ class _ReviewPageState extends State<ReviewPage> {
 
     userBloc = context.read<UserBloc>();
     reviewBloc = context.read<ReviewBloc>()
-      ..add(GetDetailReviewEvent(id: widget.id, idUser: userBloc.diner != null ? userBloc.diner.id : null));
+      ..add(GetDetailReviewEvent(
+          id: widget.id,
+          idUser: userBloc.diner != null ? userBloc.diner.id : null));
   }
 
   @override
@@ -114,22 +118,19 @@ class _ReviewPageState extends State<ReviewPage> {
                       (BuildContext context, BoxConstraints constraints) {
                     top = constraints.biggest.height;
                     return FlexibleSpaceBar(
-                        titlePadding: EdgeInsets.symmetric(
-                            horizontal: 45, vertical: 10.0),
-                        centerTitle: true,
+                        titlePadding: EdgeInsets.only(left: 50, bottom: 17),
                         title: Container(
-                          margin:
-                              EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                          margin: EdgeInsets.only(right: 90),
                           child: Opacity(
                             opacity: top <= 86.0 ? 1.0 : 0.0,
                             child: Text(
                               reviewBloc.review.title,
-                              textAlign: TextAlign.center,
+                              textAlign: TextAlign.start,
                               overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
+                              maxLines: 1,
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   height: 1.25),
                             ),
                           ),
@@ -177,6 +178,22 @@ class _ReviewPageState extends State<ReviewPage> {
                                         : null));
                               },
                             )),
+                    Material(
+                        color: Colors.transparent,
+                        child: IconButton(
+                          splashColor: kPrimaryColor,
+                          icon: Icon(FontAwesomeIcons.flag,
+                              color: Colors.white, size: 20),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ReportPage(
+                                      type: 2,
+                                      id: reviewBloc.review.id)),
+                            );
+                          },
+                        )),
                   ],
                 ),
                 SliverToBoxAdapter(
@@ -457,6 +474,16 @@ class _ReviewPageState extends State<ReviewPage> {
                                                     RestaurantBloc(
                                                         RestaurantInitial())
                                                       ..add(GetRestaurantEvent(
+                                                          idUser:
+                                                              userBloc.diner !=
+                                                                      null
+                                                                  ? userBloc
+                                                                      .diner.id
+                                                                  : null,
+                                                          longtitude: userBloc
+                                                              .longtitude,
+                                                          latitude:
+                                                              userBloc.latitude,
                                                           id: reviewBloc.review
                                                               .idRestaurant)),
                                                 child: RestaurantPage(),

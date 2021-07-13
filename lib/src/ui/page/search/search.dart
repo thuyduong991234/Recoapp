@@ -12,6 +12,7 @@ import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_event.dart';
 import 'package:recoapp/src/blocs/restaurant_bloc/restaurant_state.dart';
 import 'package:recoapp/src/blocs/review_bloc/review_event.dart';
 import 'package:recoapp/src/blocs/review_bloc/review_state.dart';
+import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_bloc.dart';
 import 'package:recoapp/src/ui/constants.dart';
 import 'package:recoapp/src/ui/page/home/checkbox_filter_list.dart';
 import 'package:recoapp/src/ui/page/restaurant/restaurant_page.dart';
@@ -27,6 +28,7 @@ class _SearchPageState extends State<SearchPage>
   bool get wantKeepAlive => true;
 
   FilterBloc filterBloc;
+  UserBloc userBloc;
   final _scrollController = ScrollController();
 
   TextEditingController textMinPrice;
@@ -47,6 +49,7 @@ class _SearchPageState extends State<SearchPage>
   void initState() {
     super.initState();
     filterBloc = context.read<FilterBloc>();
+    userBloc = context.read<UserBloc>();
     _scrollController.addListener(_onScroll);
     if (filterBloc.minPrice != null)
       textMinPrice = TextEditingController(text: filterBloc.minPrice);
@@ -58,7 +61,11 @@ class _SearchPageState extends State<SearchPage>
     else
       textMaxPrice = TextEditingController();
 
-    textSearch = TextEditingController();
+    if (filterBloc.textSearch != "") {
+      textSearch = TextEditingController(text: filterBloc.textSearch);
+    } else {
+      textSearch = TextEditingController();
+    }
   }
 
   @override
@@ -69,11 +76,22 @@ class _SearchPageState extends State<SearchPage>
 
   void _onScroll() {
     if (_isBottom) {
-      if (textSearch.text != null && textSearch.text.trim() != "") {
+      if (filterBloc.byTag != null) {
+        context.read<FilterBloc>().add(LoadMoreResultEvent(
+            byFilter: 2,
+            longtitude: userBloc.longtitude,
+            latitude: userBloc.latitude));
+      } else if (textSearch.text != null && textSearch.text.trim() != "") {
         print("textSearch = " + textSearch.text);
-        context.read<FilterBloc>().add(LoadMoreResultEvent(byFilter: false));
+        context.read<FilterBloc>().add(LoadMoreResultEvent(
+            byFilter: 1,
+            longtitude: userBloc.longtitude,
+            latitude: userBloc.latitude));
       } else {
-        context.read<FilterBloc>().add(LoadMoreResultEvent(byFilter: true));
+        context.read<FilterBloc>().add(LoadMoreResultEvent(
+            byFilter: 0,
+            longtitude: userBloc.longtitude,
+            latitude: userBloc.latitude));
       }
     }
   }
@@ -138,7 +156,9 @@ class _SearchPageState extends State<SearchPage>
                                     setState(() {
                                       unfocus = true;
                                     });
-                                    filterBloc.add(StartFilterEvent());
+                                    filterBloc.add(StartFilterEvent(
+                                        longtitude: userBloc.longtitude,
+                                        latitude: userBloc.latitude));
                                     Navigator.of(context).pop();
                                   },
                                   child: Text("Xem kết quả",
@@ -390,8 +410,10 @@ class _SearchPageState extends State<SearchPage>
                                   setState(() {
                                     unfocus = true;
                                   });
-                                  filterBloc.add(
-                                      SearchByInputTextEvent(input: value));
+                                  filterBloc.add(SearchByInputTextEvent(
+                                      input: value,
+                                      longtitude: userBloc.longtitude,
+                                      latitude: userBloc.latitude));
                                 },
                                 textAlignVertical: TextAlignVertical.center,
                                 style: TextStyle(
@@ -497,7 +519,9 @@ class _SearchPageState extends State<SearchPage>
                                           }),
                                           filterBloc.add(SearchByInputTextEvent(
                                               input: filterBloc
-                                                  .recommendSearch[index - 1]))
+                                                  .recommendSearch[index - 1],
+                                              longtitude: userBloc.longtitude,
+                                              latitude: userBloc.latitude))
                                         },
                                     child: Container(
                                         padding: EdgeInsets.symmetric(
@@ -562,10 +586,12 @@ class _SearchPageState extends State<SearchPage>
                               },
                               onSubmitted: (value) {
                                 setState(() {
-                                    unfocus = true;
-                                  });
-                                  filterBloc.add(
-                                      SearchByInputTextEvent(input: value));
+                                  unfocus = true;
+                                });
+                                filterBloc.add(SearchByInputTextEvent(
+                                    input: value,
+                                    longtitude: userBloc.longtitude,
+                                    latitude: userBloc.latitude));
                               },
                               textAlignVertical: TextAlignVertical.center,
                               style: TextStyle(
@@ -675,21 +701,27 @@ class _SearchPageState extends State<SearchPage>
                                             Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        BlocProvider(
-                                                          create: (BuildContext
-                                                                  context) =>
-                                                              RestaurantBloc(
+                                                    builder:
+                                                        (context) =>
+                                                            BlocProvider(
+                                                              create: (BuildContext context) => RestaurantBloc(
                                                                   RestaurantInitial())
                                                                 ..add(GetRestaurantEvent(
+                                                                  idUser: userBloc.diner != null ? userBloc.diner.id : null,
+                                                                    longtitude:
+                                                                        userBloc
+                                                                            .longtitude,
+                                                                    latitude:
+                                                                        userBloc
+                                                                            .latitude,
                                                                     id: state
                                                                         .listData[
                                                                             index -
                                                                                 1]
                                                                         .id)),
-                                                          child:
-                                                              RestaurantPage(),
-                                                        )))
+                                                              child:
+                                                                  RestaurantPage(),
+                                                            )))
                                           },
                                       child: Container(
                                         margin: EdgeInsets.only(bottom: 5),
@@ -858,7 +890,14 @@ class _SearchPageState extends State<SearchPage>
                                                                           15.0),
                                                                   SizedBox(
                                                                       width: 5),
-                                                                  Text("(100)",
+                                                                  Text(
+                                                                      "(" +
+                                                                          state
+                                                                              .listData[index -
+                                                                                  1]
+                                                                              .commentCount
+                                                                              .toString() +
+                                                                          ")",
                                                                       style: TextStyle(
                                                                           color:
                                                                               kTextDisabledColor,
@@ -909,7 +948,14 @@ class _SearchPageState extends State<SearchPage>
                                                                           15.0),
                                                                   SizedBox(
                                                                       width: 5),
-                                                                  Text("(100)",
+                                                                  Text(
+                                                                      "(" +
+                                                                          state
+                                                                              .listData[index -
+                                                                                  1]
+                                                                              .commentCount
+                                                                              .toString() +
+                                                                          ")",
                                                                       style: TextStyle(
                                                                           color:
                                                                               kTextDisabledColor,
@@ -918,7 +964,13 @@ class _SearchPageState extends State<SearchPage>
                                                                 ],
                                                               ),
                                                       ),
-                                                      Text("7km",
+                                                      Text(
+                                                          state
+                                                                  .listData[
+                                                                      index - 1]
+                                                                  .distance
+                                                                  .toString() +
+                                                              " km",
                                                           style: TextStyle(
                                                               color: Color(
                                                                   0xFFFF8A00),
@@ -931,12 +983,22 @@ class _SearchPageState extends State<SearchPage>
                                                   SizedBox(
                                                     height: 10,
                                                   ),
-                                                  Text("Ưu đãi: -50%",
-                                                      style: TextStyle(
-                                                          color: Colors.red,
-                                                          fontSize: 12.0,
-                                                          fontWeight:
-                                                              FontWeight.bold)),
+                                                  state.listData[index - 1]
+                                                              .newestVoucher !=
+                                                          null
+                                                      ? Text(
+                                                          "Ưu đãi: " +
+                                                              state
+                                                                  .listData[
+                                                                      index - 1]
+                                                                  .newestVoucher,
+                                                          style: TextStyle(
+                                                              color: Colors.red,
+                                                              fontSize: 12.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold))
+                                                      : Container(),
                                                   SizedBox(
                                                     height: 10,
                                                   ),

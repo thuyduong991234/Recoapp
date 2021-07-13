@@ -59,9 +59,7 @@ class Comment {
     else {
       String s = (photo.replaceAll("[", "")).replaceAll("]", "");
       this.photos = s.trim().split(",");
-
       this.photos.removeWhere((element) => element.isEmpty);
-      print("photos" + this.photos.toString());
     }
   }
 }

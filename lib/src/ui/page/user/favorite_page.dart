@@ -100,6 +100,9 @@ class _FavoritePageState extends State<FavoritePage>
                                                         RestaurantBloc(
                                                             RestaurantInitial())
                                                           ..add(GetRestaurantEvent(
+                                                            idUser: userBloc.diner != null ? userBloc.diner.id : null,
+                                                            longtitude: userBloc.longtitude,
+                                                            latitude: userBloc.latitude,
                                                               id: userBloc
                                                                   .diner
                                                                   .favoriteRestaurants[

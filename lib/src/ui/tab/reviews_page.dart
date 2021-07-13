@@ -41,9 +41,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
 
   void _onScroll() {
     if (_isBottom) {
-      print("true or false" +
-          context.read<ReviewBloc>().state.hasReachedMax.toString());
-      context.read<ReviewBloc>().add(GetReviewEvent());
+      context.read<ReviewBloc>().add(GetMoreReviewEvent(textSearch: textSearch.text));
     }
   }
 
@@ -89,7 +87,9 @@ class _ReviewsPageState extends State<ReviewsPage> {
                     child: Stack(overflow: Overflow.visible, children: [
                       ClipOval(
                         child: Image.network(
-                          userBloc.diner != null ? userBloc.diner.avatar : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQA-Jw0QFuiDlVykI47JOPtuhYbxIhnM77tkw&usqp=CAU',
+                          userBloc.diner != null
+                              ? userBloc.diner.avatar
+                              : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQA-Jw0QFuiDlVykI47JOPtuhYbxIhnM77tkw&usqp=CAU',
                           width: 60,
                           height: 60,
                           fit: BoxFit.fill,
@@ -230,9 +230,13 @@ class _ReviewsPageState extends State<ReviewsPage> {
                               ),
                               child: TextField(
                                   onSubmitted: (value) {
-                                    print("text = " + textSearch.text);
-                                    reviewBloc.add(SearchReviewEvent(
-                                        searchBy: value, startSearch: true));
+                                    print("value = " + value);
+                                    if (value == "") {
+                                      reviewBloc.add(GetReviewAfterSearchEvent());
+                                    } else {
+                                      reviewBloc.add(SearchReviewEvent(
+                                          searchBy: value, startSearch: true));
+                                    }
                                   },
                                   controller: textSearch,
                                   textAlignVertical: TextAlignVertical.center,

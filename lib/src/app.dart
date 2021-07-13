@@ -11,6 +11,7 @@ class App extends StatelessWidget {
         statusBarColor: kPrimaryColor,
         statusBarIconBrightness: Brightness.dark));
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
           primaryColor: kPrimaryColor,
           scaffoldBackgroundColor: kBackgroundColor,

@@ -37,6 +37,7 @@ class Restaurant {
   int reviewCount;
   int commentCount;
   double distance;
+  String newestVoucher;
 
   Restaurant(
       {this.id,
@@ -74,7 +75,8 @@ class Restaurant {
       this.reservationCount,
       this.reviewCount,
       this.commentCount,
-      this.distance}) {
+      this.distance,
+      this.newestVoucher}) {
     convertCarousel(carousel);
     convertMenu(menu);
   }
@@ -95,7 +97,7 @@ class Restaurant {
       tags: tags,
       carousel: json["carousel"],
       logo: json["logo"],
-      introduction: json["introduction"],
+      introduction: json["introduction"] != null && json["introduction"] != "" ? json["introduction"] : "Chưa cập nhật",
       minPrice: json["minPrice"].toInt(),
       maxPrice: json["maxPrice"].toInt(),
       openTime: json["openTime"],
@@ -127,6 +129,7 @@ class Restaurant {
       reviewCount: json["reviewCount"] != null ? json["reviewCount"] : 0,
       commentCount: json["commentCount"] != null ? json["commentCount"] : 0,
       distance:  json["distance"] ?? 0,
+      newestVoucher: json["newestVoucher"] ?? null
     );
   }
 
@@ -134,13 +137,11 @@ class Restaurant {
     String s = (photo.replaceAll("[", "")).replaceAll("]", "");
     this.carousel = s.trim().split("&");
     this.carousel.remove("");
-    print("photos" + this.carousel.toString());
   }
 
   void convertMenu(String photo) {
     String s = (photo.replaceAll("[", "")).replaceAll("]", "");
     this.menu = s.trim().split(";");
     this.menu.remove("");
-    //print("photos" + this.menu.toString());
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,13 +12,13 @@ import 'package:recoapp/src/models/diner.dart';
 import 'package:recoapp/src/models/filter_item.dart';
 import 'package:recoapp/src/models/restaurant.dart';
 import 'package:recoapp/src/models/simple_review.dart';
+import 'package:recoapp/src/resources/reservation/reservation_repository.dart';
 import 'package:recoapp/src/resources/resource/resource_repository.dart';
 import 'package:recoapp/src/resources/review/review_repository.dart';
 import 'package:recoapp/src/resources/user/user_repository.dart';
 import 'package:recoapp/src/ui/page/user/account_page.dart';
 import 'package:recoapp/src/ui/page/user/login_page.dart';
 import 'package:recoapp/src/ui/page/user/profile_page.dart';
-import 'package:recoapp/src/ui/page/user/register_page.dart';
 import 'package:recoapp/src/ui/tab/tab_navigator.dart';
 import 'package:recoapp/src/ui/tab/user_page.dart';
 
@@ -34,6 +35,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   double latitude = 0;
   List<Restaurant> nearBy = [];
   Set<Marker> markers = Set();
+  List<Restaurant> recomendForYou = [];
+  List<Restaurant> recommendCollab = [];
+  List<Restaurant> recommendHistory = [];
+  String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$';
 
   Diner diner = null;
 
@@ -42,6 +47,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   final _dinerRepository = DinerRepository();
   final _reviewRepository = ReviewRepository();
   final _resourceRepository = ResourceRepository();
+  final _reservationRepository = ReservationRepository();
 
   FirebaseAuth _auth = FirebaseAuth.instance;
   User _user;
@@ -60,8 +66,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       yield UserLoadingState();
       longtitude = event.longtitude;
       latitude = event.latitude;
+      print("end user");
+      yield UserLoadedState();
+    }
+
+    if (event is LoadNearBy) {
+      yield UserLoadingState();
       nearBy = await _dinerRepository.GetRestaurantByPosition(
-          latitude: event.latitude, longtitude: event.longtitude);
+          latitude: latitude, longtitude: longtitude);
 
       for (int i = 0; i < nearBy.length; i++) {
         print("i = " + i.toString());
@@ -74,7 +86,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           ),
         );
         markers.add(marker);
-        
       }
       print("length = " + markers.length.toString());
       yield UserLoadedState();
@@ -83,6 +94,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     if (event is GetDinerEvent) {
       yield UserLoadingState();
       diner = await _dinerRepository.getDiner(id: event.idUser);
+      recomendForYou = await _dinerRepository.recommendRestaurantContentBased(
+          idUser: event.idUser, latitude: latitude, longtitude: longtitude);
+      recommendCollab = await _dinerRepository.recommendRestaurantCollab(
+          idUser: event.idUser, latitude: latitude, longtitude: longtitude);
+      recommendHistory = await _dinerRepository.fetchRestaurantHistoryByUserId(
+          idUser: diner.id, latitude: latitude, longtitude: longtitude);
+
+      print("recommendCollab = " + recommendCollab.length.toString());
       yield UserLoadedState();
     }
 
@@ -107,6 +126,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       yield UserLoadingState();
 
       if (event.username.trim() == "" || event.password.trim() == "") {
+        Navigator.of(event.context).pop();
+
         Fluttertoast.showToast(
             msg: "Hãy nhập đầy đủ thông tin!",
             toastLength: Toast.LENGTH_SHORT,
@@ -118,41 +139,90 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         List<Object> resultLogin = await _dinerRepository.login(
             username: event.username, password: event.password);
 
-        token = resultLogin.elementAt(1).toString();
-
-        diner = await _dinerRepository.getDiner(
-            id: int.parse(resultLogin.elementAt(0).toString()));
-        listFilterItem = await _resourceRepository.getFilterItems();
-
-        areas =
-            diner.activeAreaIds != null ? diner.activeAreaIds.split("&") : [];
-
-        if (diner.tags != null && diner.tags.length > 0) {
-          for (int i = 0; i < diner.tags.length; i++) {
-            tagId.add(diner.tags[i].id);
-          }
-        }
-
-        Fluttertoast.showToast(
-            msg: "Đăng nhập thành công!",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            timeInSecForIosWeb: 5);
-
-        if (diner.fullname == "Chưa cập nhật" &&
-            diner.phone == "Chưa cập nhật" &&
-            diner.address == "Chưa cập nhật") {
-          Navigator.push(
-            event.context,
-            MaterialPageRoute(builder: (context) => AccountPage()),
-          );
-        } else {
+        if (resultLogin.elementAt(0) == "401") {
           Navigator.of(event.context).pop();
-        }
 
-        yield UserLoadedState();
+          Fluttertoast.showToast(
+              msg: "Mật khẩu không đúng. Hãy thử lại!",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              timeInSecForIosWeb: 5);
+        } else {
+          token = resultLogin.elementAt(1).toString();
+
+          diner = await _dinerRepository.getDiner(
+              id: int.parse(resultLogin.elementAt(0).toString()));
+          listFilterItem = await _resourceRepository.getFilterItems();
+
+          areas =
+              diner.activeAreaIds != null ? diner.activeAreaIds.split("&") : [];
+
+          if (diner.tags != null && diner.tags.length > 0) {
+            for (int i = 0; i < diner.tags.length; i++) {
+              tagId.add(diner.tags[i].id);
+            }
+          }
+
+          FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+          final tokenFCM = await messaging.getToken();
+
+          await _dinerRepository.sendUserTokenFCM(tokenFCM, diner.id);
+
+          if (diner.fullname == "Chưa cập nhật" &&
+              diner.phone == "Chưa cập nhật" &&
+              diner.address == "Chưa cập nhật") {
+            Navigator.of(event.context).pop();
+
+            Fluttertoast.showToast(
+                msg: "Đăng nhập thành công!",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                backgroundColor: Colors.green,
+                textColor: Colors.white,
+                timeInSecForIosWeb: 5);
+
+            Navigator.push(
+              event.context,
+              MaterialPageRoute(builder: (context) => AccountPage()),
+            );
+          } else {
+            recomendForYou =
+                await _dinerRepository.recommendRestaurantContentBased(
+                    idUser: diner.id,
+                    latitude: latitude,
+                    longtitude: longtitude);
+            recommendCollab = await _dinerRepository.recommendRestaurantCollab(
+                idUser: diner.id, latitude: latitude, longtitude: longtitude);
+            recommendHistory =
+                await _dinerRepository.fetchRestaurantHistoryByUserId(
+                    idUser: diner.id,
+                    latitude: latitude,
+                    longtitude: longtitude);
+
+            Navigator.of(event.context).pop();
+
+            Fluttertoast.showToast(
+                msg: "Đăng nhập thành công!",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                backgroundColor: Colors.green,
+                textColor: Colors.white,
+                timeInSecForIosWeb: 5);
+
+            Navigator.push(
+              event.context,
+              MaterialPageRoute(
+                  builder: (context) => TabNavigator(
+                        index: 3,
+                      )),
+            );
+          }
+
+          yield UserLoadedState();
+        }
       }
     }
 
@@ -180,14 +250,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
       token = resultLogin.elementAt(1).toString();
 
-      Fluttertoast.showToast(
-          msg: "Đăng nhập thành công!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          timeInSecForIosWeb: 10);
-
       diner = await _dinerRepository.getDiner(
           id: int.parse(resultLogin.elementAt(0).toString()));
       listFilterItem = await _resourceRepository.getFilterItems();
@@ -200,15 +262,55 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         }
       }
 
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+      final tokenFCM = await messaging.getToken();
+
+      await _dinerRepository.sendUserTokenFCM(tokenFCM, diner.id);
+
       if (diner.fullname == "Chưa cập nhật" ||
           (diner.phone == "Chưa cập nhật" &&
               diner.address == "Chưa cập nhật")) {
+        Navigator.of(event.context).pop();
+
+        Fluttertoast.showToast(
+            msg: "Đăng nhập thành công!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            timeInSecForIosWeb: 10);
+
         Navigator.push(
           event.context,
           MaterialPageRoute(builder: (context) => AccountPage()),
         );
       } else {
+        recomendForYou = await _dinerRepository.recommendRestaurantContentBased(
+            idUser: diner.id, latitude: latitude, longtitude: longtitude);
+        recommendCollab = await _dinerRepository.recommendRestaurantCollab(
+            idUser: diner.id, latitude: latitude, longtitude: longtitude);
+        recommendHistory =
+            await _dinerRepository.fetchRestaurantHistoryByUserId(
+                idUser: diner.id, latitude: latitude, longtitude: longtitude);
+
         Navigator.of(event.context).pop();
+
+        Fluttertoast.showToast(
+            msg: "Đăng nhập thành công!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            timeInSecForIosWeb: 10);
+
+        Navigator.push(
+          event.context,
+          MaterialPageRoute(
+              builder: (context) => TabNavigator(
+                    index: 3,
+                  )),
+        );
       }
 
       yield UserLoadedState();
@@ -216,12 +318,21 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
     if (event is RegisterEvent) {
       yield UserLoadingState();
-
+      RegExp regExp = new RegExp(pattern);
       if (event.username.trim() == "" ||
           event.password.trim() == "" ||
           event.email.trim() == "") {
         Fluttertoast.showToast(
             msg: "Hãy nhập đầy đủ thông tin!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            timeInSecForIosWeb: 5);
+      } else if (!regExp.hasMatch(event.password)) {
+        Fluttertoast.showToast(
+            msg:
+                "Mật khẩu phải chứa ít nhất 8 ký tự, một ký tự in hoa, một ký tự thường, một ký tự số.",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER,
             backgroundColor: Colors.red,
@@ -247,9 +358,16 @@ class UserBloc extends Bloc<UserEvent, UserState> {
               builder: (context) => LoginPage(),
             ),
           );
+          yield UserLoadedState();
+        } else if (resultRegister == "400") {
+          Fluttertoast.showToast(
+              msg: "Email/Username đã tồn tại.",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              timeInSecForIosWeb: 5);
         }
-
-        yield UserLoadedState();
       }
     }
 
@@ -459,6 +577,99 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         }
 
         yield UserLoadedState();
+      }
+    }
+
+    if (event is CalRecommendContentBasedEvent) {
+      yield UserLoadingState();
+      await _dinerRepository.calRecommendRestaurantContentBased(
+          tagid: tagId, areas: areas, idUser: diner.id);
+      recomendForYou = await _dinerRepository.recommendRestaurantContentBased(
+          idUser: diner.id, latitude: latitude, longtitude: longtitude);
+      yield UserLoadedState();
+    }
+
+    if (event is FetchRecommendNoUser) {
+      yield UserLoadingState();
+      recomendForYou = await _dinerRepository.recommendRestaurantNoUser(
+          latitude: latitude, longtitude: longtitude);
+
+      print("xong FetchRecommendNoUser");
+      yield UserLoadedState();
+    }
+
+    if (event is FetchRestaurantHistory) {
+      yield UserLoadingState();
+      if (diner != null) {
+        recommendHistory =
+            await _dinerRepository.fetchRestaurantHistoryByUserId(
+                idUser: diner.id, latitude: latitude, longtitude: longtitude);
+      } else {
+        recommendHistory = await _dinerRepository.fetchRestaurantHistoryByIp(
+            latitude: latitude, longtitude: longtitude);
+      }
+
+      print("xong FetchRestaurantHistory");
+
+      yield UserLoadedState();
+    }
+
+    if (event is ChangePasswordEvent) {
+      yield UserLoadingState();
+      RegExp regExp = new RegExp(pattern);
+
+      if (event.confirmPassword == "" ||
+          event.newPassword == "" ||
+          event.currentPassword == "") {
+        Fluttertoast.showToast(
+            msg: "Hãy nhập đầy đủ thông tin.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            timeInSecForIosWeb: 5);
+      } else if (!regExp.hasMatch(event.newPassword)) {
+        Fluttertoast.showToast(
+            msg:
+                "Mật khẩu phải chứa ít nhất 8 ký tự, một ký tự in hoa, một ký tự thường, một ký tự số.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            timeInSecForIosWeb: 5);
+      } else if (event.confirmPassword != event.newPassword) {
+        Fluttertoast.showToast(
+            msg: "Xác nhận lại mật khẩu mới không khớp. Hãy thử lại!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            timeInSecForIosWeb: 5);
+      } else {
+        List<Object> result = await _dinerRepository.updatePassword(
+            userId: diner.id,
+            currentPassword: event.currentPassword,
+            newpassword: event.newPassword);
+        if (result[0] == 400) {
+          Fluttertoast.showToast(
+              msg: "Password hiện tại không đúng.",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              timeInSecForIosWeb: 5);
+        } else {
+          token = result[1].toString();
+          Fluttertoast.showToast(
+              msg: "Cập nhật mật khẩu thành công!",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              timeInSecForIosWeb: 5);
+          Navigator.of(event.context).pop();
+          yield UserLoadedState();
+        }
       }
     }
   }

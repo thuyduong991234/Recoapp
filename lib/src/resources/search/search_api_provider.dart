@@ -15,11 +15,19 @@ class SearchApiProvider {
       String minPrice,
       String maxPrice,
       String sortBy,
-      int page) async {
+      int page,
+      double latitude,
+      double longtitude) async {
+    var direction = "ASC";
+    if (sortBy == "starAverage") {
+      direction = "DESC";
+    }
     var url = Uri.parse(baseUrl +
         "/restaurants/search?sortable=" +
         sortBy.toString() +
-        "&direction=ASC&page=" +
+        "&direction=" +
+        direction +
+        "&page=" +
         page.toString());
 
     print("url = " + url.toString());
@@ -34,6 +42,8 @@ class SearchApiProvider {
       'maxPrice': maxPrice == null || maxPrice == ''
           ? null
           : int.parse(maxPrice.replaceAll(".", '')),
+      'latitude': latitude,
+      'longtitude': longtitude
     });
 
     print("body : " + body.toString());
@@ -54,6 +64,8 @@ class SearchApiProvider {
         'maxPrice': maxPrice == null || maxPrice == ''
             ? null
             : int.parse(maxPrice.replaceAll(".", '')),
+        'latitude': latitude,
+        'longtitude': longtitude
       }),
     );
 
@@ -65,7 +77,7 @@ class SearchApiProvider {
     if (response.statusCode == 200) {
       List<Object> result = [];
       List<Restaurant> data = [];
-      jsonResponse['data']['content']
+      jsonResponse['data']["content"]
           .forEach((item) => {data.add(Restaurant.fromJsonMap(item))});
       result.add(jsonResponse['data']['totalElements']);
       result.add(data);
@@ -106,10 +118,49 @@ class SearchApiProvider {
     }
   }
 
-  Future<List<Object>> searchRestaurant(String sortBy, int page) async {
+  Future<List<Object>> searchRestaurant(
+      String sortBy, int page, double latitude, double longtitude) async {
     var url = Uri.parse(baseUrl +
         "/search/restaurant?query=" +
         sortBy.toString() +
+        "&latitude=" +
+        latitude.toString() +
+        "&longtitude=" +
+        longtitude.toString() +
+        "&page=" +
+        page.toString());
+
+    print("url = " + url.toString());
+
+    final response = await http
+        .get(url, headers: {'Accept': 'application/json; charset=UTF-8'});
+
+    var jsonResponse = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      List<Object> result = [];
+      List<Restaurant> data = [];
+      jsonResponse['data']['content']
+          .forEach((item) => {data.add(Restaurant.fromJsonMap(item))});
+      result.add(jsonResponse['data']['totalElements']);
+      result.add(data);
+      return result;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load tag');
+    }
+  }
+
+  Future<List<Object>> searchByOneTag(
+      int tagId, int page, double latitude, double longtitude) async {
+    var url = Uri.parse(baseUrl +
+        "/restaurants/tag/" +
+        tagId.toString() +
+        "?latitude=" +
+        latitude.toString() +
+        "&longtitude=" +
+        longtitude.toString() +
         "&page=" +
         page.toString());
 

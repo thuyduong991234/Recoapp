@@ -11,4 +11,6 @@ class ReservationRepository {
           {int idUser, int page, int type}) =>
       reservationApiProvider.fetchReservationByType(
           idUser: idUser, page: page, type: type);
+
+  Future<String> cancelledReservation({int idReservation}) => reservationApiProvider.cancelledReservation(idReservation: idReservation);
 }
