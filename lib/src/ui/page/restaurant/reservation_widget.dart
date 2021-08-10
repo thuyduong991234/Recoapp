@@ -243,7 +243,8 @@ class _ReservationWidgetState extends State<ReservationWidget> {
                       onTap: () {
                         if (userBloc.diner == null) {
                           Fluttertoast.showToast(
-                              msg: "Bạn cần đăng nhập để thực hiện chức năng này!",
+                              msg:
+                                  "Bạn cần đăng nhập để thực hiện chức năng này!",
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.CENTER,
                               backgroundColor: Colors.red,
@@ -251,6 +252,7 @@ class _ReservationWidgetState extends State<ReservationWidget> {
                               timeInSecForIosWeb: 5);
                         } else {
                           restaurantBloc.add(ConfirmReservation(
+                              idRes: restaurantBloc.data.id,
                               idVoucher: (restaurantBloc.listVouchers != null &&
                                       restaurantBloc.listVouchers.length > 0)
                                   ? restaurantBloc.listVouchers[0].id
@@ -273,7 +275,7 @@ class _ReservationWidgetState extends State<ReservationWidget> {
                       child: Container(
                         width: 80,
                         height: 55,
-                        margin: index == 4
+                        margin: index == listTime.length
                             ? EdgeInsets.only(left: 20.0, right: 20.0)
                             : EdgeInsets.only(left: 20.0, right: 0.0),
                         child: Column(

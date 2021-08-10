@@ -86,6 +86,9 @@ class _CampaignCarouselState extends State<CampaignCarousel> {
                                     padding: const EdgeInsets.only(left: 20.0),
                                     child: Container(
                                         decoration: BoxDecoration(
+                                          borderRadius:
+                                                      BorderRadiusDirectional
+                                                          .circular(10),
                                             image: DecorationImage(
                                                 colorFilter: ColorFilter.mode(
                                                     Colors.black

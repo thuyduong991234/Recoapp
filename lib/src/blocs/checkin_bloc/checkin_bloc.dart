@@ -18,12 +18,9 @@ class CheckinBloc extends Bloc<CheckinEvent, CheckinState> {
   CheckinState get initialState => CheckInInitial();
 
   Future<CheckinState> _mapCheckInFetchToState(CheckinState state) async {
-    print("vô 2");
     if (state.hasReachedMax) return state;
     try {
-      print("vô 3");
       if (state.status == CheckInStatus.initial) {
-        print("vô 4");
         final listCheckIns =
             await _checkinRepository.fetchAllCheckIns(page: page);
         List<CheckIn> listdata = listCheckIns.elementAt(1);
@@ -34,7 +31,6 @@ class CheckinBloc extends Bloc<CheckinEvent, CheckinState> {
           hasReachedMax: false,
         );
       }
-      print("page = " + page.toString());
       final listCheckIns =
           await _checkinRepository.fetchAllCheckIns(page: ++page);
       List<CheckIn> listdata = listCheckIns.elementAt(1);
@@ -54,9 +50,6 @@ class CheckinBloc extends Bloc<CheckinEvent, CheckinState> {
   @override
   Stream<CheckinState> mapEventToState(event) async* {
     if (event is GetCheckInEvent) {
-      //list_data = await _checkinRepository.fetchAllCheckIns();
-      //result = list_data;
-      print("vô 1");
       yield await _mapCheckInFetchToState(state);
     }
 
@@ -70,6 +63,19 @@ class CheckinBloc extends Bloc<CheckinEvent, CheckinState> {
         selected = event.checkIn;
       else
         selected = null;
+
+      yield CheckInLoadedState(
+          status: state.status,
+          listCheckIns: state.listCheckIns,
+          hasReachedMax: state.hasReachedMax);
+    }
+
+    if(event is SearchCheckInEvent)
+    {
+      yield CheckInLoadingState(
+          status: state.status,
+          listCheckIns: state.listCheckIns,
+          hasReachedMax: state.hasReachedMax);
 
       yield CheckInLoadedState(
           status: state.status,

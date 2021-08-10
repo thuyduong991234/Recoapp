@@ -34,10 +34,11 @@ class ConfirmReservation extends RestaurantEvent {
   final int numberPerson;
   final String code;
   final int idUser;
+  final int idRes;
 
-  ConfirmReservation({this.idVoucher, this.time, this.numberPerson, this.code, this.idUser});
+  ConfirmReservation({this.idVoucher, this.time, this.numberPerson, this.code, this.idUser, this.idRes});
   @override
-  List<Object> get props => [idVoucher, time, numberPerson, code, idUser];
+  List<Object> get props => [idVoucher, time, numberPerson, code, idUser, idRes];
 
   @override
   String toString() => 'ProductButtonPressed { ... }';

@@ -192,7 +192,9 @@ class _ReviewsPageState extends State<ReviewsPage> {
                   child: Stack(overflow: Overflow.visible, children: [
                     ClipOval(
                       child: Image.network(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQA-Jw0QFuiDlVykI47JOPtuhYbxIhnM77tkw&usqp=CAU',
+                        userBloc.diner != null
+                              ? userBloc.diner.avatar
+                              : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQA-Jw0QFuiDlVykI47JOPtuhYbxIhnM77tkw&usqp=CAU',
                         width: 60,
                         height: 60,
                         fit: BoxFit.fill,

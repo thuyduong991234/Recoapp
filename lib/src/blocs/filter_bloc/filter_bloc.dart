@@ -64,29 +64,19 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
   @override
   Stream<FilterState> mapEventToState(event) async* {
     if (event is GetFilterEvent) {
-      print("start top10Restaurant");
       top10Restaurant = await _restaurantRepository.fetchTop10Restaurant();
-      print("xong top10Restaurant" + top10Restaurant.length.toString());
 
-      print("start top10Voucher");
       top10Voucher = await _voucherRepository.fetchTop10NewestVouchers();
-      print("xong top10Voucher" + top10Voucher.length.toString());
 
-      print("start listTagHome");
       listTagHome = await _tagRepository.fetchAllTags();
-      print("xong listTagHome");
 
-      print("start restaurants");
       restaurants = await _resourceRepository.getRestaurantNames();
-      print("xong restaurants");
 
-      print("start list_data");
       list_data = await _resourceRepository.getFilterItems();
-      print("xong list_data");
+
       for (int i = 0; i < list_data.length; i++) {
         selected.putIfAbsent(i, () => List<Tag>());
       }
-      print("xong selected");
 
       final prefs = await SharedPreferences.getInstance();
 
@@ -94,7 +84,6 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
         selectedHome = prefs.getStringList("showHome");
       } else {
         selectedHome = List.of(showHome);
-        print("selectedHome " + selectedHome.length.toString());
       }
 
       if (prefs.containsKey("isOn")) {
@@ -126,12 +115,10 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
           status: FilterStatus.initial,
           listData: state.listData,
           hasReachedMax: state.hasReachedMax);
-      print("input " + event.input);
+
       recommendSearch = restaurants.where((item) {
         return item.toLowerCase().contains(event.input.toLowerCase());
       }).toList();
-
-      print("recommendSearch = " + recommendSearch.toString());
 
       yield FilterLoadedState(
           status: FilterStatus.initial,
@@ -140,7 +127,6 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
     }
 
     if (event is EnterFilterPageEvent) {
-      print("vô");
       filter = [];
       recommendSearch = restaurants;
       yield FilterLoadedState(
@@ -150,12 +136,11 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
     }
 
     if (event is SelectedFilterItemEvent) {
-      print("vô");
       yield FilterLoadingState(
           status: state.status,
           listData: state.listData,
           hasReachedMax: state.hasReachedMax);
-      print("vô 1");
+
       event.value == true
           ? selected[event.index].add(event.tag)
           : selected[event.index].remove(event.tag);
@@ -175,7 +160,7 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
         codeSort = null;
         minPrice = null;
         maxPrice = null;
-        print("code 2 = " + codeSort.toString());
+
         for (int i = 0; i < selected.length; i++) {
           selected[i].clear();
         }
@@ -204,7 +189,7 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
         sortBy = null;
 
       codeSort = event.sortBy;
-      print("code = " + codeSort.toString());
+      
       yield FilterLoadedState(
           status: state.status,
           listData: state.listData,
@@ -268,7 +253,6 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
       filter = [];
 
       if (event.byFilter == 0) {
-        print("page = " + page.toString());
 
         List<int> areas = selected[0].map((e) => e.id).toList();
         List<int> dishes = selected[1].map((e) => e.id).toList();
@@ -368,9 +352,7 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
           listData: state.listData,
           hasReachedMax: state.hasReachedMax);
 
-      print("notiNumber old = " + notiNumber.toString());
       notiNumber = notiNumber + 1;
-      print("notiNumber = " + notiNumber.toString());
       pageNoti = 0;
 
       List<Object> result =
@@ -414,7 +396,6 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
           hasReachedMax: state.hasReachedMax);
 
       await _resourceRepository.sendTokenFCM(event.token);
-      print("xong SendTokenFCM");
 
       yield FilterLoadedState(
           status: state.status,
@@ -428,15 +409,12 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
           listData: state.listData,
           hasReachedMax: state.hasReachedMax);
 
-      print("value = " + event.value.toString());
       if (event.value) {
         selectedHome.add(showHome.elementAt(event.index));
-        print("selectedHome = " + selectedHome.length.toString());
         final prefs = await SharedPreferences.getInstance();
         prefs.setStringList("showHome", selectedHome);
       } else {
         selectedHome.remove(showHome.elementAt(event.index));
-        print("selectedHome = " + selectedHome.length.toString());
         final prefs = await SharedPreferences.getInstance();
         prefs.setStringList("showHome", selectedHome);
       }
@@ -453,7 +431,6 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
           listData: state.listData,
           hasReachedMax: state.hasReachedMax);
 
-      print("value = " + event.isOn.toString());
       statusNoti = event.isOn;
       final prefs = await SharedPreferences.getInstance();
       prefs.setBool("isOn", event.isOn);
@@ -510,7 +487,7 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
       String maxPrice,
       double latitude,
       double longtitude) async {
-    print("vô 2 + " + state.hasReachedMax.toString());
+        
     if (state.hasReachedMax) return state;
     try {
       final result = await _searchRepository.searchByFilter(areas, dishes, type,
@@ -545,16 +522,16 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
       String maxPrice,
       double latitude,
       double longtitude) async {
-    print("vô 2 + " + state.hasReachedMax.toString());
+        
     if (state.hasReachedMax) return state;
     try {
       final result = await _searchRepository.searchByFilter(areas, dishes, type,
           nation, minPrice, maxPrice, sortBy, ++page, latitude, longtitude);
       List<Restaurant> listdata = result.elementAt(1);
       totalElements = result.elementAt(0);
-      print("list data = " + listdata.length.toString());
+      
       List<Restaurant> a = List.of(state.listData)..addAll(listdata);
-      print("list data = " + a.length.toString());
+      
       return listdata.isEmpty
           ? state.copyWith(status: FilterStatus.success, hasReachedMax: true)
           : FilterLoadedState(
@@ -569,8 +546,7 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
 
   Future<FilterState> _mapResultFetchByInputToState(FilterState state,
       String input, double latitude, double longtitude) async {
-    print("vô 2 _mapResultFetchByInputToState + " +
-        state.hasReachedMax.toString());
+    
     if (state.hasReachedMax) return state;
     try {
       final result = await _searchRepository.searchRestaurant(
@@ -578,8 +554,6 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
       List<Restaurant> listdata = result.elementAt(1);
       totalElements = result.elementAt(0);
       if (listdata.length == totalElements) {
-        print("vô 3 _mapResultFetchByInputToState + " +
-            state.hasReachedMax.toString());
         return state.copyWith(
           status: FilterStatus.success,
           listData: listdata,
@@ -598,16 +572,13 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
 
   Future<FilterState> _mapResultFetchMoreByInputToState(FilterState state,
       String input, double latitude, double longtitude) async {
-    print("vô 2 + " + state.hasReachedMax.toString());
     if (state.hasReachedMax) return state;
     try {
       final result = await _searchRepository.searchRestaurant(
           input, ++page, latitude, longtitude);
       List<Restaurant> listdata = result.elementAt(1);
       totalElements = result.elementAt(0);
-      print("list data = " + listdata.length.toString());
       List<Restaurant> a = List.of(state.listData)..addAll(listdata);
-      print("list data = " + a.length.toString());
       return listdata.isEmpty
           ? state.copyWith(status: FilterStatus.success, hasReachedMax: true)
           : FilterLoadedState(
@@ -622,8 +593,6 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
 
   Future<FilterState> _mapResultFetchByOneTagToState(
       FilterState state, Tag tag, double latitude, double longtitude) async {
-    print("vô 2 _mapResultFetchByInputToState + " +
-        state.hasReachedMax.toString());
     if (state.hasReachedMax) return state;
     try {
       final result = await _searchRepository.searchByOneTag(
@@ -631,8 +600,6 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
       List<Restaurant> listdata = result.elementAt(1);
       totalElements = result.elementAt(0);
       if (listdata.length == totalElements) {
-        print("vô 3 _mapResultFetchByInputToState + " +
-            state.hasReachedMax.toString());
         return state.copyWith(
           status: FilterStatus.success,
           listData: listdata,
@@ -651,16 +618,13 @@ class FilterBloc extends Bloc<FilterEvent, FilterState> {
 
   Future<FilterState> _mapResultFetchMoreByOneTagToState(
       FilterState state, Tag tag, double latitude, double longtitude) async {
-    print("vô 2 + " + state.hasReachedMax.toString());
     if (state.hasReachedMax) return state;
     try {
       final result = await _searchRepository.searchByOneTag(
           tag.id, ++page, latitude, longtitude);
       List<Restaurant> listdata = result.elementAt(1);
       totalElements = result.elementAt(0);
-      print("list data = " + listdata.length.toString());
       List<Restaurant> a = List.of(state.listData)..addAll(listdata);
-      print("list data = " + a.length.toString());
       return listdata.isEmpty
           ? state.copyWith(status: FilterStatus.success, hasReachedMax: true)
           : FilterLoadedState(

@@ -44,7 +44,7 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
   @override
   Stream<RestaurantState> mapEventToState(event) async* {
     if (event is GetRestaurantEvent) {
-      print("event.id " + event.id.toString());
+      
       data = await _restaurantRepository.getDetailRestaurant(
           id: event.id, latitude: event.latitude, longtitude: event.longtitude);
       numberLiked = data.userLikeCount;
@@ -79,6 +79,9 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
       await _restaurantRepository.createHistory(
           idUser: event.idUser, idRestaurant: data.id);
 
+      //await _restaurantRepository.calRecommendItemContentBased(
+        //    idRestaurant: data.id);
+
       yield RestaurantLoadedState();
     }
 
@@ -103,6 +106,7 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
 
       currentVoucher =
           await _voucherRepository.getDetailVoucher(idVoucher: event.id);
+          
       marker = new Marker(
         markerId: MarkerId(currentVoucher.idRestaurant.toString()),
         position: LatLng(currentVoucher.latitude, currentVoucher.longtitude),
@@ -118,12 +122,13 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
     if (event is ConfirmReservation) {
       yield RestaurantLoadingState();
       reservation = new Reservation();
-      reservation.idRestaurant = data.id;
+      reservation.idRestaurant = event.idRes;
       reservation.idVoucher = event.idVoucher;
       reservation.numberPerson = event.numberPerson;
       reservation.time = event.time;
       reservation.idUser = event.idUser;
       reservation.code = event.code;
+
       yield RestaurantLoadedState();
     }
 
@@ -148,12 +153,6 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
         reservation.email = event.email;
         reservation.additionalInfo = event.info.isEmpty ? null : event.info;
 
-        print("reservation = " +
-            reservation.idUser.toString() +
-            " - " +
-            reservation.idRestaurant.toString() +
-            reservation.idVoucher.toString() +
-            reservation.time.toString());
         String resultCode =
             await _reservationRepsitory.createReservation(reservation);
 
@@ -210,8 +209,6 @@ class RestaurantBloc extends Bloc<RestaurantEvent, RestaurantState> {
       yield RestaurantLoadingState();
 
       if (recommendRestaurant.length <= 0) {
-        /*await _restaurantRepository.calRecommendItemContentBased(
-            idRestaurant: data.id);*/
         recommendRestaurant =
             await _restaurantRepository.recommendRestaurantContentBased(
                 idRestaurant: data.id,

@@ -14,6 +14,7 @@ import 'package:recoapp/src/blocs/tag_bloc/tag_state.dart';
 import 'package:recoapp/src/blocs/review_bloc/review_bloc.dart';
 import 'package:recoapp/src/blocs/review_bloc/review_state.dart';
 import 'package:recoapp/src/blocs/review_bloc/review_event.dart';
+import 'package:recoapp/src/blocs/user_bloc/user_bloc/user_bloc.dart';
 import 'package:recoapp/src/ui/constants.dart';
 import 'package:recoapp/src/ui/page/review/search_checkin.dart';
 import 'package:recoapp/src/ui/page/review/search_tag.dart';
@@ -27,6 +28,7 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
   ReviewBloc reviewBloc;
   TagBloc tagBloc;
   CheckinBloc checkinBloc;
+  UserBloc userBloc;
   TextEditingController textTitle = TextEditingController();
   TextEditingController textContent = TextEditingController();
   TextEditingController textPoint = TextEditingController();
@@ -35,6 +37,7 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
   void initState() {
     super.initState();
     reviewBloc = context.read<ReviewBloc>();
+    userBloc = context.read<UserBloc>();
     tagBloc = TagBloc(Initial())..add(GetTagEvent());
     checkinBloc = CheckinBloc(CheckInInitial())..add(GetCheckInEvent());
     print("vô" + reviewBloc.listPhotos.toString());
@@ -76,6 +79,7 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
                         print(
                             "tag bloc = " + tagBloc.selected.length.toString());
                         reviewBloc.add(SubmitReviewEvent(
+                            idUser: userBloc.diner.id,
                             context: context,
                             title: textTitle.text,
                             content: textContent.text,

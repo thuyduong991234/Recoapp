@@ -58,7 +58,6 @@ class _MyReviewPageState extends State<MyReviewPage> {
         builder: (context, state) {
           if (userBloc.listReviews == null)
             return Scaffold(
-                backgroundColor: Colors.white,
                 floatingActionButton: FloatingActionButton(
                     backgroundColor: kPrimaryColor,
                     onPressed: () {
@@ -117,7 +116,6 @@ class _MyReviewPageState extends State<MyReviewPage> {
                               AlwaysStoppedAnimation<Color>(kPrimaryColor),
                         )))));
           return Scaffold(
-              backgroundColor: Colors.white,
               floatingActionButton: FloatingActionButton(
                   backgroundColor: kPrimaryColor,
                   onPressed: () {

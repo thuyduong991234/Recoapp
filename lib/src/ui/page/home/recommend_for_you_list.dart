@@ -32,6 +32,7 @@ class _RecommendForYouListState extends State<RecommendForYouList> {
     for (int i = 0; i < userBloc.recomendForYou[0].carousel.length; i++) {
       listWidget.add(Container(
           decoration: BoxDecoration(
+              borderRadius: BorderRadiusDirectional.circular(10),
               image: DecorationImage(
                   colorFilter: ColorFilter.mode(
                       Colors.black.withOpacity(0.4), BlendMode.darken),
@@ -87,7 +88,12 @@ class _RecommendForYouListState extends State<RecommendForYouList> {
                                                     RestaurantBloc(
                                                         RestaurantInitial())
                                                       ..add(GetRestaurantEvent(
-                                                        idUser: userBloc.diner != null ? userBloc.diner.id : null,
+                                                          idUser:
+                                                              userBloc.diner !=
+                                                                      null
+                                                                  ? userBloc
+                                                                      .diner.id
+                                                                  : null,
                                                           longtitude: userBloc
                                                               .longtitude,
                                                           latitude:
@@ -116,17 +122,35 @@ class _RecommendForYouListState extends State<RecommendForYouList> {
                                                     0
                                             ? loadPhotos()
                                             : [
-                                                Image.network(
-                                                  'https://lauwang.vn/wp-content/uploads/2020/10/LAM03924.jpg',
-                                                  fit: BoxFit.cover,
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadiusDirectional
+                                                              .circular(10)),
+                                                  child: Image.network(
+                                                    'https://lauwang.vn/wp-content/uploads/2020/10/LAM03924.jpg',
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
-                                                Image.network(
-                                                  'https://lauwang.vn/wp-content/uploads/2020/10/LAM03924.jpg',
-                                                  fit: BoxFit.cover,
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadiusDirectional
+                                                              .circular(10)),
+                                                  child: Image.network(
+                                                    'https://lauwang.vn/wp-content/uploads/2020/10/LAM03924.jpg',
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
-                                                Image.network(
-                                                  'https://lauwang.vn/wp-content/uploads/2020/10/LAM03924.jpg',
-                                                  fit: BoxFit.cover,
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadiusDirectional
+                                                              .circular(10)),
+                                                  child: Image.network(
+                                                    'https://lauwang.vn/wp-content/uploads/2020/10/LAM03924.jpg',
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
                                               ],
                                     autoPlayInterval: 3000,
@@ -381,21 +405,24 @@ class _RecommendForYouListState extends State<RecommendForYouList> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     BlocProvider(
-                                                      create: (BuildContext
-                                                              context) =>
-                                                          RestaurantBloc(
-                                                              RestaurantInitial())
-                                                            ..add(GetRestaurantEvent(
-                                                              idUser: userBloc.diner != null ? userBloc.diner.id : null,
-                                                                longtitude: userBloc
-                                                                    .longtitude,
-                                                                latitude: userBloc
-                                                                    .latitude,
-                                                                id: userBloc
-                                                                    .recomendForYou[
-                                                                        index +
-                                                                            1]
-                                                                    .id)),
+                                                      create: (BuildContext context) => RestaurantBloc(
+                                                          RestaurantInitial())
+                                                        ..add(GetRestaurantEvent(
+                                                            idUser:
+                                                                userBloc.diner !=
+                                                                        null
+                                                                    ? userBloc
+                                                                        .diner
+                                                                        .id
+                                                                    : null,
+                                                            longtitude: userBloc
+                                                                .longtitude,
+                                                            latitude: userBloc
+                                                                .latitude,
+                                                            id: userBloc
+                                                                .recomendForYou[
+                                                                    index + 1]
+                                                                .id)),
                                                       child: RestaurantPage(),
                                                     )))
                                       },

@@ -211,7 +211,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                         height: 12,
                         width: restaurantBloc.data.star5 != null &&
                                 restaurantBloc.data.commentCount > 0
-                            ? (restaurantBloc.data.star5 * 190.0) /
+                            ? (restaurantBloc.data.star5 * 180.0) /
                                 restaurantBloc.data.commentCount
                             : 0,
                         color: kPrimaryColor,
@@ -231,7 +231,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                         height: 12,
                         width: restaurantBloc.data.star4 != null &&
                                 restaurantBloc.data.commentCount > 0
-                            ? (restaurantBloc.data.star4 * 190.0) /
+                            ? (restaurantBloc.data.star4 * 180.0) /
                                 restaurantBloc.data.commentCount
                             : 0,
                         color: kPrimaryColor,
@@ -251,7 +251,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                         height: 12,
                         width: restaurantBloc.data.star3 != null &&
                                 restaurantBloc.data.commentCount > 0
-                            ? (restaurantBloc.data.star3 * 190.0) /
+                            ? (restaurantBloc.data.star3 * 180.0) /
                                 restaurantBloc.data.commentCount
                             : 0,
                         color: kPrimaryColor,
@@ -271,7 +271,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                         height: 12,
                         width: restaurantBloc.data.star2 != null &&
                                 restaurantBloc.data.commentCount > 0
-                            ? (restaurantBloc.data.star2 * 190.0) /
+                            ? (restaurantBloc.data.star2 * 180.0) /
                                 restaurantBloc.data.commentCount
                             : 0,
                         color: kPrimaryColor,
@@ -291,7 +291,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                         height: 12,
                         width: restaurantBloc.data.star1 != null &&
                                 restaurantBloc.data.commentCount > 0
-                            ? (restaurantBloc.data.star1 * 190.0) /
+                            ? (restaurantBloc.data.star1 * 180.0) /
                                 restaurantBloc.data.commentCount
                             : 0,
                         color: kPrimaryColor,
@@ -357,11 +357,11 @@ class _RestaurantPageState extends State<RestaurantPage> {
                   Text(
                       (restaurantBloc.data.starNoise == null ||
                               restaurantBloc.data.starNoise == 0)
-                          ? "Thấp"
+                          ? "Rất ồn"
                           : ((restaurantBloc.data.starNoise > 0 &&
                                   restaurantBloc.data.starNoise <= 3)
                               ? "Vừa phải"
-                              : "Rất ồn"),
+                              : "Thấp"),
                       style: TextStyle(color: Colors.black, fontSize: 14)),
                 ],
               ),

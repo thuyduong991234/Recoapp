@@ -34,7 +34,9 @@ class _UserCommentListState extends State<UserCommentList> {
   }
 
   void _onScroll() {
-    if (_isBottom) reservationStatusBloc.add(GetMoreEvent(type: 5, idUser: userBloc.diner.id));
+    if (_isBottom)
+      reservationStatusBloc
+          .add(GetMoreEvent(type: 5, idUser: userBloc.diner.id));
   }
 
   bool get _isBottom {
@@ -98,107 +100,115 @@ class _UserCommentListState extends State<UserCommentList> {
                                               MainAxisAlignment.spaceBetween,
                                           children: <Widget>[
                                             Expanded(
-                                              child: (state.listComments[index]
-                                                              .overallStar !=
-                                                          null &&
-                                                      state.listComments[index]
-                                                              .overallStar !=
-                                                          0)
-                                                  ? Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      children: <Widget>[
-                                                        Icon(
-                                                            state
-                                                                        .listComments[
-                                                                            index]
-                                                                        .overallStar >=
-                                                                    1
-                                                                ? Icons.star
-                                                                : Icons
-                                                                    .star_half,
-                                                            color: Color(
-                                                                0xFFFF8A00),
-                                                            size: 15.0),
-                                                        Icon(
-                                                            state
-                                                                        .listComments[
-                                                                            index]
-                                                                        .overallStar >=
-                                                                    2
-                                                                ? Icons.star
-                                                                : Icons
-                                                                    .star_half,
-                                                            color: Color(
-                                                                0xFFFF8A00),
-                                                            size: 15.0),
-                                                        Icon(
-                                                            state
-                                                                        .listComments[
-                                                                            index]
-                                                                        .overallStar >=
-                                                                    3
-                                                                ? Icons.star
-                                                                : Icons
-                                                                    .star_half,
-                                                            color: Color(
-                                                                0xFFFF8A00),
-                                                            size: 15.0),
-                                                        Icon(
-                                                            state
-                                                                        .listComments[
-                                                                            index]
-                                                                        .overallStar >=
-                                                                    4
-                                                                ? Icons.star
-                                                                : Icons
-                                                                    .star_half,
-                                                            color: Color(
-                                                                0xFFFF8A00),
-                                                            size: 15.0),
-                                                        Icon(
-                                                            state
-                                                                        .listComments[
-                                                                            index]
-                                                                        .overallStar >=
-                                                                    5
-                                                                ? Icons.star
-                                                                : Icons
-                                                                    .star_half,
-                                                            color: Color(
-                                                                0xFFFF8A00),
-                                                            size: 15.0),
-                                                      ],
-                                                    )
-                                                  : Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      children: <Widget>[
-                                                        Icon(Icons.star,
-                                                            color:
-                                                                kTextDisabledColor,
-                                                            size: 15.0),
-                                                        Icon(Icons.star,
-                                                            color:
-                                                                kTextDisabledColor,
-                                                            size: 15.0),
-                                                        Icon(Icons.star,
-                                                            color:
-                                                                kTextDisabledColor,
-                                                            size: 15.0),
-                                                        Icon(Icons.star,
-                                                            color:
-                                                                kTextDisabledColor,
-                                                            size: 15.0),
-                                                        Icon(Icons.star,
-                                                            color:
-                                                                kTextDisabledColor,
-                                                            size: 15.0),
-                                                      ],
-                                                    ),
-                                            ),
+                                            child: (state.listComments[index]
+                                                            .overallStar !=
+                                                        null &&
+                                                    state.listComments[index]
+                                                            .overallStar !=
+                                                        0)
+                                                ? Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: <Widget>[
+                                                      Icon(
+                                                          state.listComments[
+                                                                          index]
+                                                                      .overallStar >=
+                                                                  1
+                                                              ? Icons.star
+                                                              : Icons.star_half,
+                                                          color:
+                                                              state.listComments[
+                                                                          index]
+                                                                      .overallStar >= 0 ? 
+                                                              Color(0xFFFF8A00) : kTextDisabledColor,
+                                                          size: 15.0),
+                                                      Icon(
+                                                          state.listComments[
+                                                                          index]
+                                                                      .overallStar >=
+                                                                  2
+                                                              ? Icons.star
+                                                              : Icons.star_half,
+                                                          color:
+                                                              state.listComments[
+                                                                          index]
+                                                                      .overallStar >= 1 ? 
+                                                              Color(0xFFFF8A00) : kTextDisabledColor,
+                                                          size: 15.0),
+                                                      Icon(
+                                                          state.listComments[
+                                                                          index]
+                                                                      .overallStar >=
+                                                                  3
+                                                              ? Icons.star
+                                                              : Icons.star_half,
+                                                          color:
+                                                              state.listComments[
+                                                                          index]
+                                                                      .overallStar >= 2 ? 
+                                                              Color(0xFFFF8A00) : kTextDisabledColor,
+                                                          size: 15.0),
+                                                      Icon(
+                                                          state.listComments[
+                                                                          index]
+                                                                      .overallStar <
+                                                                  4 && state.listComments[
+                                                                          index]
+                                                                      .overallStar >
+                                                                  3
+                                                              ? Icons.star_half
+                                                              : Icons.star,
+                                                          color: state.listComments[
+                                                                          index]
+                                                                      .overallStar >= 3 ? 
+                                                              Color(0xFFFF8A00) : kTextDisabledColor,
+                                                          size: 15.0),
+                                                      Icon(
+                                                          state.listComments[
+                                                                          index]
+                                                                      .overallStar <
+                                                                  5 && state.listComments[
+                                                                          index]
+                                                                      .overallStar > 4
+                                                                  
+                                                              ? Icons.star_half
+                                                              : Icons.star,
+                                                          color: state.listComments[
+                                                                          index]
+                                                                      .overallStar >=
+                                                                  4 ? 
+                                                              Color(0xFFFF8A00) : kTextDisabledColor,
+                                                          size: 15.0),
+                                                    ],
+                                                  )
+                                                : Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: <Widget>[
+                                                      Icon(Icons.star,
+                                                          color:
+                                                              kTextDisabledColor,
+                                                          size: 15.0),
+                                                      Icon(Icons.star,
+                                                          color:
+                                                              kTextDisabledColor,
+                                                          size: 15.0),
+                                                      Icon(Icons.star,
+                                                          color:
+                                                              kTextDisabledColor,
+                                                          size: 15.0),
+                                                      Icon(Icons.star,
+                                                          color:
+                                                              kTextDisabledColor,
+                                                          size: 15.0),
+                                                      Icon(Icons.star,
+                                                          color:
+                                                              kTextDisabledColor,
+                                                          size: 15.0),
+                                                    ],
+                                                  ),
+                                          ),
                                             Text(
                                               DateFormat("dd-MM-yyyy HH:mm")
                                                   .format(state
@@ -223,6 +233,7 @@ class _UserCommentListState extends State<UserCommentList> {
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Icon(Icons.location_on_outlined,
                                                 color: kTextDisabledColor,
@@ -268,7 +279,8 @@ class _UserCommentListState extends State<UserCommentList> {
                                                 BorderRadius.circular(8.0),
                                             child: Image.network(
                                               state.listComments[index]
-                                                  .photos[count].replaceAll(" ", ""),
+                                                  .photos[count]
+                                                  .replaceAll(" ", ""),
                                               width: 80,
                                               height: 80,
                                               fit: BoxFit.fill,
@@ -277,6 +289,44 @@ class _UserCommentListState extends State<UserCommentList> {
                                     }),
                                   )
                                 : Container(),
+                            Wrap(spacing: 8.0, runSpacing: 5.0, children: [
+                              Chip(
+                                backgroundColor:
+                                    Color(0xFFFF8A00).withOpacity(0.3),
+                                labelStyle: TextStyle(
+                                    color: Color(0xFFFF8A00), fontSize: 12.0),
+                                label: Text("Đồ ăn: " +
+                                    state.listComments[index].foodStar
+                                        .toString()),
+                              ),
+                              Chip(
+                                backgroundColor:
+                                    Color(0xFFFF8A00).withOpacity(0.3),
+                                labelStyle: TextStyle(
+                                    color: Color(0xFFFF8A00), fontSize: 12.0),
+                                label: Text("Dịch vụ: " +
+                                    state.listComments[index].serviceStar
+                                        .toString()),
+                              ),
+                              Chip(
+                                backgroundColor:
+                                    Color(0xFFFF8A00).withOpacity(0.3),
+                                labelStyle: TextStyle(
+                                    color: Color(0xFFFF8A00), fontSize: 12.0),
+                                label: Text("Không gian: " +
+                                    state.listComments[index].aimbianceStar
+                                        .toString()),
+                              ),
+                              Chip(
+                                backgroundColor:
+                                    Color(0xFFFF8A00).withOpacity(0.3),
+                                labelStyle: TextStyle(
+                                    color: Color(0xFFFF8A00), fontSize: 12.0),
+                                label: Text("Độ ồn: " +
+                                    state.listComments[index].noiseStar
+                                        .toString()),
+                              )
+                            ]),
                           ],
                         ),
                       );

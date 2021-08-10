@@ -2,6 +2,19 @@ class User {
   int id;
   String fullname;
   String avatar;
+  int _point;
+  int _level;
+
+  int get point => _point;
+  int get level => _level;
+
+  set point(int point) {
+    this._point = point;
+  }
+
+  set level(int level) {
+    this._level = level;
+  }
 
   User({
     this.id,

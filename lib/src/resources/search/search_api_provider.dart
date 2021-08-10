@@ -22,6 +22,10 @@ class SearchApiProvider {
     if (sortBy == "starAverage") {
       direction = "DESC";
     }
+    else if(sortBy == null)
+    {
+      sortBy = "updatedAt";
+    }
     var url = Uri.parse(baseUrl +
         "/restaurants/search?sortable=" +
         sortBy.toString() +
@@ -54,10 +58,10 @@ class SearchApiProvider {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, dynamic>{
-        'district': areas,
-        'type': types,
-        'dishes': dishes,
-        'nation': nation,
+        'district': areas == null ? [] : areas,
+        'type': types == null ? [] : types,
+        'dishes': dishes == null ? [] : dishes,
+        'nation': nation == null ? [] : nation,
         'minPrice': minPrice == null || minPrice == ''
             ? null
             : int.parse(minPrice.replaceAll(".", '')),

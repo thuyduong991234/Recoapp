@@ -39,7 +39,6 @@ class TagBloc extends Bloc<TagEvent, TagState> {
       yield TagLoadingState();
 
       if (event.value) {
-        print("vô");
         selected.add(event.tag);
       } else
         selected.remove(event.tag);

@@ -81,6 +81,7 @@ class ReservationStatusBloc
           List<Reservation> a = List.of(state.listWaitApprove)..removeAt(event.index);
 
           List<Reservation> b = List.of(state.listCanceled)..add(re);
+
           yield ReservationStatusLoadedState(
             status: state.status,
             listWaitApprove: a,
@@ -155,7 +156,6 @@ class ReservationStatusBloc
       ReservationStatusState state, int type, int idUser) async {
     if (type == 1) {
       if (state.hasReachedMaxWaitApprove) {
-        print("waitApprove old = " + state.listWaitApprove.length.toString());
         return state;
       }
       try {
@@ -166,7 +166,6 @@ class ReservationStatusBloc
         List<Reservation> data = waitApprove[0];
 
         List<Reservation> a = List.of(state.listWaitApprove)..addAll(data);
-        print("waitApprove = " + a.length.toString());
         return data.isEmpty
             ? state.copyWith(hasReachedMaxWaitApprove: true)
             : ReservationStatusLoadedState(
@@ -196,7 +195,6 @@ class ReservationStatusBloc
         List<Reservation> data = approved[0];
 
         List<Reservation> a = List.of(state.listApproved)..addAll(data);
-        print("approved = " + a.length.toString());
         return data.isEmpty
             ? state.copyWith(hasReachedMaxApproved: true)
             : ReservationStatusLoadedState(
@@ -227,7 +225,6 @@ class ReservationStatusBloc
         List<Reservation> data = canceled[0];
 
         List<Reservation> a = List.of(state.listCanceled)..addAll(data);
-        print("waitApprove = " + a.length.toString());
         return data.isEmpty
             ? state.copyWith(hasReachedMaxCanceled: true)
             : ReservationStatusLoadedState(
@@ -258,7 +255,6 @@ class ReservationStatusBloc
         List<Reservation> data = history[0];
 
         List<Reservation> a = List.of(state.listHistory)..addAll(data);
-        print("history = " + a.length.toString());
         return data.isEmpty
             ? state.copyWith(hasReachedMaxHistory: true)
             : ReservationStatusLoadedState(
@@ -280,7 +276,6 @@ class ReservationStatusBloc
     }
 
     if (type == 5) {
-      print("vô");
       if (state.hasReachedMaxComment) return state;
       try {
         List<Object> comment = await _commentRepository.fetchCommentsByUser(
@@ -288,7 +283,6 @@ class ReservationStatusBloc
         List<Comment> data = comment[0];
 
         List<Comment> a = List.of(state.listComments)..addAll(data);
-        print("comment = " + a.length.toString());
         return data.isEmpty
             ? state.copyWith(hasReachedMaxComment: true)
             : ReservationStatusLoadedState(

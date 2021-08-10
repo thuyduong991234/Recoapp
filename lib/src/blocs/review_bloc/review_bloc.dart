@@ -42,12 +42,9 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
 
   Future<ReviewState> _mapReviewFetchToState(
       ReviewState state, bool isRefresh) async {
-    print("vô 2");
     if (state.hasReachedMax) return state;
     try {
-      print("vô 3");
       if (state.status == ReviewStatus.initial || isRefresh) {
-        print("vô 4");
         final reviews = await _reviewRepository.fetchAllReviews(page: page);
         List<SimpleReview> listdata = reviews.elementAt(1);
         totalElements = reviews.elementAt(0);
@@ -62,9 +59,7 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
       final reviews = await _reviewRepository.fetchAllReviews(page: ++page);
       List<SimpleReview> listdata = reviews.elementAt(1);
       totalElements = reviews.elementAt(0);
-      print("list data = " + listdata.length.toString());
       List<SimpleReview> a = List.of(state.listData)..addAll(listdata);
-      print("list data = " + a.length.toString());
       return listdata.isEmpty
           ? ReviewLoadedState(
               status: ReviewStatus.success,
@@ -206,11 +201,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
           status: state.status,
           listData: state.listData,
           hasReachedMax: state.hasReachedMax);
-      print("file = " + listPhotos.length.toString());
 
       listPhotos.add(event.image);
-
-      print("file = " + listPhotos.length.toString());
 
       yield ReviewLoadedState(
           status: state.status,
@@ -242,13 +234,6 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
       if (event.tags != null || event.tags.length != 0) {
         idTags = event.tags.map((e) => e.id).toList();
       }
-
-      print("title = " + event.title);
-      print("content = " + event.content);
-      print("point = " + event.point);
-      print("photo = " + event.photos.toString());
-      print("checkin = " + event.checkIn?.id.toString());
-      print("tag = " + idTags.toString());
 
       if (event.title == null || event.title.isEmpty) {
         //send = false;

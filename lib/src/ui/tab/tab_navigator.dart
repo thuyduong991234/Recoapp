@@ -170,7 +170,7 @@ class _TabNavigatorState extends State<TabNavigator> {
                     elevation: 0,
                     badgeColor: Colors.red,
                     badgeContent: Text(
-                      (filterBloc.notiNumber).toString(),
+                      "Mới",
                       style: TextStyle(
                           fontSize: 10,
                           color: Colors.white,

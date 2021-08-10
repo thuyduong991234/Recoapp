@@ -21,12 +21,16 @@ class ReviewApiProvider {
         'title': title,
         'content': content,
         'restaurantId': checkin,
-        'userId': 2,
+        'userId': user,
         'point': point,
         'tags': tags,
         'listPhoto': photos.toString(),
       }),
     );
+
+    var jsonResponse = jsonDecode(response.body);
+
+    print("res = " + jsonResponse.toString());
 
     if (response.statusCode == 201) {
       return "201";
@@ -39,6 +43,8 @@ class ReviewApiProvider {
 
   Future<List<Object>> fetchAllReviews({int page}) async {
     var url = Uri.parse(baseUrl + "/reviews?page=" + page.toString());
+
+    print("url = " + url.toString());
 
     final response = await http
         .get(url, headers: {'Accept': 'application/json; charset=UTF-8'});
@@ -97,6 +103,15 @@ class ReviewApiProvider {
       review.setTags(tags);
       review.setCuisine(s);
 
+      var urlTwo =
+          Uri.parse(baseUrl + "/users/badge/" + review.user.id.toString());
+      final responseTwo = await http
+          .get(urlTwo, headers: {'Accept': 'application/json; charset=UTF-8'});
+      var jsonResponseTwo = jsonDecode(responseTwo.body);
+
+      review.user.point = jsonResponseTwo["data"]["point"];
+      review.user.level = jsonResponseTwo["data"]["level"];
+
       return review;
     } else {
       // If the server did not return a 200 OK response,
@@ -107,6 +122,11 @@ class ReviewApiProvider {
 
   Future<String> followReview({int idUser, int idReview, bool isLiked}) async {
     var url = Uri.parse(baseUrl + "/reviews/follow");
+
+    print("idUser = " + idUser.toString());
+    print("idReview = " + idReview.toString());
+
+    print("isLiked = " + isLiked.toString());
 
     final response = await http.post(
       url,
@@ -130,7 +150,11 @@ class ReviewApiProvider {
   }
 
   Future<List<Object>> fetchAllReviewsByDinner({int idUser, int page}) async {
-    var url = Uri.parse(baseUrl + "/reviews/user/" + idUser.toString() + "?page=" + page.toString());
+    var url = Uri.parse(baseUrl +
+        "/reviews/user/" +
+        idUser.toString() +
+        "?page=" +
+        page.toString());
 
     final response = await http
         .get(url, headers: {'Accept': 'application/json; charset=UTF-8'});

@@ -19,6 +19,20 @@ class Diner {
   List<Tag> tags;
   String activeAreaIds;
 
+  int _point;
+  int _level;
+
+  int get point => _point;
+  int get level => _level;
+
+  set point(int point) {
+    this._point = point;
+  }
+
+  set level(int level) {
+    this._level = level;
+  }
+
   Diner(
       {this.id,
       this.username,
@@ -67,7 +81,9 @@ class Diner {
         username: json["username"],
         fullname: json["fullName"] ?? "Chưa cập nhật",
         reviewCount: json["reviewCount"].toInt(),
-        address: json["address"] != null ? json["address"]["detail"] : "Chưa cập nhật",
+        address: json["address"] != null
+            ? json["address"]["detail"]
+            : "Chưa cập nhật",
         email: json["email"] ?? "Chưa cập nhật",
         phone: json["phone"] ?? "Chưa cập nhật",
         reservationCount: json["reservationCount"].toInt(),

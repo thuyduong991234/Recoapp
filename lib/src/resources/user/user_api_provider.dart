@@ -11,19 +11,27 @@ import 'package:recoapp/src/ui/constants.dart';
 class DinerApiProvider {
   Future<Diner> getDiner({int id}) async {
     var url = Uri.parse(baseUrl + "/users/t/diners/" + id.toString());
+    var urlTwo = Uri.parse(baseUrl + "/users/badge/" + id.toString());
 
     print("url login = " + url.toString());
 
     final response = await http
         .get(url, headers: {'Accept': 'application/json; charset=UTF-8'});
 
+    final responseTwo = await http
+        .get(urlTwo, headers: {'Accept': 'application/json; charset=UTF-8'});
+
     var jsonResponse = jsonDecode(response.body);
+
+    var jsonResponseTwo = jsonDecode(responseTwo.body);
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON.
       //print("Vô api:" + jsonResponse.toString());
       Diner diner = Diner.fromJsonMap(jsonResponse["data"]);
+      diner.point = jsonResponseTwo["data"]["point"];
+      diner.level = jsonResponseTwo["data"]["level"];
 
       return diner;
     } else {

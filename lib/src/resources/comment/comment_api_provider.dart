@@ -31,9 +31,11 @@ class CommentApiProvider {
         'serviceStar': starService,
         'aimbianceStar': starAmbious,
         'noiseStar': starNoise,
-        'listPhoto': photos == null ?  null : photos.toString(),
+        'listPhoto': photos == null ? null : photos.toString(),
       }),
     );
+
+    var jsonResponse = jsonDecode(response.body);
 
     if (response.statusCode == 201) {
       return "201";
@@ -60,7 +62,7 @@ class CommentApiProvider {
       // If the server did return a 200 OK response,
       // then parse the JSON.
       //print("Vô api:" + jsonResponse.toString());
-      List<Object> result=[];
+      List<Object> result = [];
       List<Comment> data = [];
       jsonResponse['data']['content']
           .forEach((item) => {data.add(Comment.fromJson(item))});
@@ -76,7 +78,8 @@ class CommentApiProvider {
     }
   }
 
-  Future<List<Object>> fetchCommentsByRestaurant({int page, int idRestaurant}) async {
+  Future<List<Object>> fetchCommentsByRestaurant(
+      {int page, int idRestaurant}) async {
     var url = Uri.parse(baseUrl +
         "/comments/restaurant/" +
         idRestaurant.toString() +
@@ -92,10 +95,29 @@ class CommentApiProvider {
       // If the server did return a 200 OK response,
       // then parse the JSON.
       //print("Vô api:" + jsonResponse.toString());
-      List<Object> result=[];
+
+      List<Object> result = [];
       List<Comment> data = [];
+
       jsonResponse['data']['content']
           .forEach((item) => {data.add(Comment.fromJson(item))});
+
+      for (int i = 0; i < data.length; i++) {
+        var urlTwo =
+            Uri.parse(baseUrl + "/users/badge/" + data[i].user.id.toString());
+        final responseTwo = await http.get(urlTwo,
+            headers: {'Accept': 'application/json; charset=UTF-8'});
+        var jsonResponseTwo = jsonDecode(responseTwo.body);
+
+        if (responseTwo.statusCode == 200) {
+          data[i].user.point = jsonResponseTwo["data"]["point"];
+          data[i].user.level = jsonResponseTwo["data"]["level"];
+        } else {
+          // If the server did not return a 200 OK response,
+          // then throw an exception.
+          throw Exception('Failed to load tag');
+        }
+      }
 
       result.add(data);
       result.add(jsonResponse['data']['totalPages']);

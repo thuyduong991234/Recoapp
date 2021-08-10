@@ -106,6 +106,9 @@ class _RestaurantCarouselCollabState extends State<RestaurantCarouselCollab> {
                                           : EdgeInsets.only(right: 0.0),
                                       child: Container(
                                           decoration: BoxDecoration(
+                                            borderRadius:
+                                                          BorderRadiusDirectional
+                                                              .circular(10),
                                               image: DecorationImage(
                                                   fit: BoxFit.cover,
                                                   image: NetworkImage(userBloc

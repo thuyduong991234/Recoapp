@@ -66,7 +66,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       yield UserLoadingState();
       longtitude = event.longtitude;
       latitude = event.latitude;
-      print("end user");
       yield UserLoadedState();
     }
 
@@ -76,7 +75,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           latitude: latitude, longtitude: longtitude);
 
       for (int i = 0; i < nearBy.length; i++) {
-        print("i = " + i.toString());
         Marker marker = new Marker(
           markerId: MarkerId(nearBy[i].id.toString()),
           position: LatLng(nearBy[i].latitude, nearBy[i].longtitude),
@@ -87,7 +85,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         );
         markers.add(marker);
       }
-      print("length = " + markers.length.toString());
       yield UserLoadedState();
     }
 
@@ -96,12 +93,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       diner = await _dinerRepository.getDiner(id: event.idUser);
       recomendForYou = await _dinerRepository.recommendRestaurantContentBased(
           idUser: event.idUser, latitude: latitude, longtitude: longtitude);
+      await _dinerRepository.calRecommendRestaurantCollab(idUser: event.idUser);
       recommendCollab = await _dinerRepository.recommendRestaurantCollab(
           idUser: event.idUser, latitude: latitude, longtitude: longtitude);
       recommendHistory = await _dinerRepository.fetchRestaurantHistoryByUserId(
           idUser: diner.id, latitude: latitude, longtitude: longtitude);
 
-      print("recommendCollab = " + recommendCollab.length.toString());
       yield UserLoadedState();
     }
 
@@ -240,8 +237,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       UserCredential result = (await _auth.signInWithCredential(credential));
 
       _user = result.user;
-
-      print("user google = " + _user.toString());
 
       List<Object> resultLogin = await _dinerRepository.loginSocial(
           fullname: _user.displayName,
@@ -382,7 +377,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       listReviews = result[1];
 
       if (listReviews.length == result[0]) hasReachedMax = true;
-      print("listReviews " + listReviews.toString());
 
       yield UserLoadedState();
     }
@@ -407,13 +401,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       yield UserLoadingState();
 
       if (event.value) {
-        print("vô");
         areas.add(event.id.toString());
-        print("areas = " + areas.toString());
       } else {
-        print("vô 3");
         areas.remove(event.id.toString());
-        print("areas remove = " + areas.toString());
       }
 
       yield UserLoadedState();
@@ -423,13 +413,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       yield UserLoadingState();
 
       if (event.value) {
-        print("vô 1");
         tagId.add(event.id);
-        print("other = " + tagId.toString());
       } else {
-        print("vô 2");
         tagId.remove(event.id);
-        print("other remove = " + tagId.toString());
       }
 
       yield UserLoadedState();
@@ -492,13 +478,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
     if (event is UpdateAccountInfoEvent) {
       yield UserLoadingState();
-
-      print("fullname = " + event.fullname);
-      print("phone = " + event.phone);
-      print("address = " + event.address);
-      print("email = " + event.email);
-      print("dob = " + event.dob.toString());
-      print("gender = " + event.gender.toString());
 
       if (event.fullname == null ||
           (event.fullname.replaceAll(" ", "")).isEmpty) {
@@ -589,12 +568,19 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       yield UserLoadedState();
     }
 
+    if (event is CalRecommendCollabEvent) {
+      yield UserLoadingState();
+      await _dinerRepository.calRecommendRestaurantCollab(idUser: diner.id);
+      recommendCollab = await _dinerRepository.recommendRestaurantCollab(
+          idUser: diner.id, latitude: latitude, longtitude: longtitude);
+      yield UserLoadedState();
+    }
+
     if (event is FetchRecommendNoUser) {
       yield UserLoadingState();
       recomendForYou = await _dinerRepository.recommendRestaurantNoUser(
           latitude: latitude, longtitude: longtitude);
 
-      print("xong FetchRecommendNoUser");
       yield UserLoadedState();
     }
 
@@ -608,8 +594,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         recommendHistory = await _dinerRepository.fetchRestaurantHistoryByIp(
             latitude: latitude, longtitude: longtitude);
       }
-
-      print("xong FetchRestaurantHistory");
 
       yield UserLoadedState();
     }

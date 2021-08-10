@@ -15,7 +15,8 @@ class RestaurantCarouselHistory extends StatefulWidget {
   RestaurantCarouselHistory(this.title);
 
   @override
-  _RestaurantCarouselHistoryState createState() => _RestaurantCarouselHistoryState();
+  _RestaurantCarouselHistoryState createState() =>
+      _RestaurantCarouselHistoryState();
 }
 
 class _RestaurantCarouselHistoryState extends State<RestaurantCarouselHistory> {
@@ -107,6 +108,9 @@ class _RestaurantCarouselHistoryState extends State<RestaurantCarouselHistory> {
                                           : EdgeInsets.only(right: 0.0),
                                       child: Container(
                                           decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadiusDirectional
+                                                      .circular(10),
                                               image: DecorationImage(
                                                   fit: BoxFit.cover,
                                                   image: NetworkImage(userBloc
@@ -358,8 +362,8 @@ class _RestaurantCarouselHistoryState extends State<RestaurantCarouselHistory> {
                                     //tag
                                     userBloc.recommendHistory[index].tags !=
                                                 null &&
-                                            userBloc.recommendHistory[index].tags
-                                                    .length >
+                                            userBloc.recommendHistory[index]
+                                                    .tags.length >
                                                 0
                                         ? Padding(
                                             padding:

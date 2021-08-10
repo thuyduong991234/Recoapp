@@ -72,7 +72,6 @@ class Review {
 
   void convertPhoto(String photo) {
     String s = (photo.replaceAll("[", "")).replaceAll("]", "");
-    this.photos = s.trim().split(",");
-    print("photos" + this.photos.toString());
+    this.photos = s.trim().split(", ");
   }
 }

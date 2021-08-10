@@ -102,7 +102,7 @@ class _VoucherPageState extends State<VoucherPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => ReportPage(
-                                              type: 3,
+                                                type: 3,
                                                 id: restaurantBloc
                                                     .currentVoucher.id)),
                                       );
@@ -340,6 +340,19 @@ class _VoucherPageState extends State<VoucherPage> {
                                                                       14.0))
                                                         ],
                                                       ),
+                                                SizedBox(height: 10),
+                                                Text(
+                                                    "Từ " + restaurantBloc
+                                                        .currentVoucher.fromTime.day.toString() + "/" + restaurantBloc
+                                                        .currentVoucher.fromTime.month.toString() + "/" + restaurantBloc
+                                                        .currentVoucher.fromTime.year.toString() + " đến " + restaurantBloc
+                                                        .currentVoucher.toTime.day.toString() + "/" + restaurantBloc
+                                                        .currentVoucher.toTime.month.toString() + "/" + restaurantBloc
+                                                        .currentVoucher.toTime.year.toString(),
+                                                    style: TextStyle(
+                                                        color: Color(
+                                                                      0xFF9A9693),
+                                                        fontSize: 14.0)),
                                               ],
                                             )),
                                       ],

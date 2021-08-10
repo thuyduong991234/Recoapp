@@ -113,8 +113,14 @@ class _CommentListState extends State<CommentList> {
                                                                   1
                                                               ? Icons.star
                                                               : Icons.star_half,
-                                                          color:
-                                                              Color(0xFFFF8A00),
+                                                          color: restaurantBloc
+                                                                      .listComment[
+                                                                          index]
+                                                                      .overallStar >=
+                                                                  0
+                                                              ? Color(
+                                                                  0xFFFF8A00)
+                                                              : kTextDisabledColor,
                                                           size: 15.0),
                                                       Icon(
                                                           restaurantBloc
@@ -124,8 +130,14 @@ class _CommentListState extends State<CommentList> {
                                                                   2
                                                               ? Icons.star
                                                               : Icons.star_half,
-                                                          color:
-                                                              Color(0xFFFF8A00),
+                                                          color: restaurantBloc
+                                                                      .listComment[
+                                                                          index]
+                                                                      .overallStar >=
+                                                                  1
+                                                              ? Color(
+                                                                  0xFFFF8A00)
+                                                              : kTextDisabledColor,
                                                           size: 15.0),
                                                       Icon(
                                                           restaurantBloc
@@ -135,30 +147,58 @@ class _CommentListState extends State<CommentList> {
                                                                   3
                                                               ? Icons.star
                                                               : Icons.star_half,
-                                                          color:
-                                                              Color(0xFFFF8A00),
+                                                          color: restaurantBloc
+                                                                      .listComment[
+                                                                          index]
+                                                                      .overallStar >=
+                                                                  2
+                                                              ? Color(
+                                                                  0xFFFF8A00)
+                                                              : kTextDisabledColor,
                                                           size: 15.0),
                                                       Icon(
                                                           restaurantBloc
+                                                                          .listComment[
+                                                                              index]
+                                                                          .overallStar <
+                                                                      4 &&
+                                                                  restaurantBloc
+                                                                          .listComment[
+                                                                              index]
+                                                                          .overallStar >
+                                                                      3
+                                                              ? Icons.star_half
+                                                              : Icons.star,
+                                                          color: restaurantBloc
+                                                                      .listComment[
+                                                                          index]
+                                                                      .overallStar >=
+                                                                  3
+                                                              ? Color(
+                                                                  0xFFFF8A00)
+                                                              : kTextDisabledColor,
+                                                          size: 15.0),
+                                                      Icon(
+                                                          restaurantBloc
+                                                                          .listComment[
+                                                                              index]
+                                                                          .overallStar <
+                                                                      5 &&
+                                                                  restaurantBloc
+                                                                          .listComment[
+                                                                              index]
+                                                                          .overallStar >
+                                                                      4
+                                                              ? Icons.star_half
+                                                              : Icons.star,
+                                                          color: restaurantBloc
                                                                       .listComment[
                                                                           index]
                                                                       .overallStar >=
                                                                   4
-                                                              ? Icons.star
-                                                              : Icons.star_half,
-                                                          color:
-                                                              Color(0xFFFF8A00),
-                                                          size: 15.0),
-                                                      Icon(
-                                                          restaurantBloc
-                                                                      .listComment[
-                                                                          index]
-                                                                      .overallStar >=
-                                                                  5
-                                                              ? Icons.star
-                                                              : Icons.star_half,
-                                                          color:
-                                                              Color(0xFFFF8A00),
+                                                              ? Color(
+                                                                  0xFFFF8A00)
+                                                              : kTextDisabledColor,
                                                           size: 15.0),
                                                     ],
                                                   )
@@ -191,7 +231,8 @@ class _CommentListState extends State<CommentList> {
                                           ),
                                           Text(
                                             DateFormat("dd-MM-yyyy HH:mm")
-                                                .format(restaurantBloc.listComment[index]
+                                                .format(restaurantBloc
+                                                    .listComment[index]
                                                     .createdAt),
                                             style: TextStyle(
                                                 color: kTextDisabledColor,
@@ -201,28 +242,49 @@ class _CommentListState extends State<CommentList> {
                                       ),
                                       SizedBox(height: 5),
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            "bởi",
-                                            style: TextStyle(
-                                                color: kTextDisabledColor,
-                                                fontSize: 12),
-                                          ),
-                                          SizedBox(width: 5),
                                           Expanded(
-                                            child: Text(
-                                              restaurantBloc.listComment[index]
-                                                  .user.fullname,
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "bởi",
+                                                  style: TextStyle(
+                                                      color: kTextDisabledColor,
+                                                      fontSize: 12),
+                                                ),
+                                                SizedBox(width: 5),
+                                                Expanded(
+                                                  child: Text(
+                                                    restaurantBloc
+                                                        .listComment[index]
+                                                        .user
+                                                        .fullname,
+                                                    style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                )
+                                              ],
                                             ),
-                                          )
+                                          ),
+                                          Text(
+                                            "Level: " +
+                                                restaurantBloc
+                                                    .listComment[index]
+                                                    .user
+                                                    .level
+                                                    .toString(),
+                                            style: TextStyle(
+                                                color: kThirdColor,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold),
+                                          ),
                                         ],
-                                      ),
+                                      )
                                     ]),
                               )
                             ],
@@ -264,6 +326,46 @@ class _CommentListState extends State<CommentList> {
                                   }),
                                 )
                               : Container(),
+                          SizedBox(height: 10),
+                          Wrap(spacing: 8.0, runSpacing: 5.0, children: [
+                            Chip(
+                              backgroundColor:
+                                  Color(0xFFFF8A00).withOpacity(0.3),
+                              labelStyle: TextStyle(
+                                  color: Color(0xFFFF8A00), fontSize: 12.0),
+                              label: Text("Đồ ăn: " +
+                                  restaurantBloc.listComment[index].foodStar
+                                      .toString()),
+                            ),
+                            Chip(
+                              backgroundColor:
+                                  Color(0xFFFF8A00).withOpacity(0.3),
+                              labelStyle: TextStyle(
+                                  color: Color(0xFFFF8A00), fontSize: 12.0),
+                              label: Text("Dịch vụ: " +
+                                  restaurantBloc.listComment[index].serviceStar
+                                      .toString()),
+                            ),
+                            Chip(
+                              backgroundColor:
+                                  Color(0xFFFF8A00).withOpacity(0.3),
+                              labelStyle: TextStyle(
+                                  color: Color(0xFFFF8A00), fontSize: 12.0),
+                              label: Text("Không gian: " +
+                                  restaurantBloc
+                                      .listComment[index].aimbianceStar
+                                      .toString()),
+                            ),
+                            Chip(
+                              backgroundColor:
+                                  Color(0xFFFF8A00).withOpacity(0.3),
+                              labelStyle: TextStyle(
+                                  color: Color(0xFFFF8A00), fontSize: 12.0),
+                              label: Text("Độ ồn: " +
+                                  restaurantBloc.listComment[index].noiseStar
+                                      .toString()),
+                            )
+                          ]),
                           SizedBox(height: 40),
                         ],
                       );

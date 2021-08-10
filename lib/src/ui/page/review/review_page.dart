@@ -189,8 +189,7 @@ class _ReviewPageState extends State<ReviewPage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => ReportPage(
-                                      type: 2,
-                                      id: reviewBloc.review.id)),
+                                      type: 2, id: reviewBloc.review.id)),
                             );
                           },
                         )),
@@ -239,11 +238,25 @@ class _ReviewPageState extends State<ReviewPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        reviewBloc.review.user.fullname,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            color: Colors.black, fontSize: 14),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            reviewBloc.review.user.fullname,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 14),
+                                          ),
+                                          SizedBox(width: 5),
+                                          Text(
+                                            "(Level: " + reviewBloc.review.user.level.toString() + ")",
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                color: kThirdColor,
+                                                fontSize: 14),
+                                          ),
+                                        ],
                                       ),
                                       SizedBox(height: 5),
                                       Text(
@@ -280,14 +293,6 @@ class _ReviewPageState extends State<ReviewPage> {
                                               color: Color(0xFFFF8A00),
                                               size: 18)
                                         ],
-                                      ),
-                                      SizedBox(height: 5),
-                                      Text(
-                                        "(10 lượt xem)",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            color: kTextDisabledColor,
-                                            fontSize: 12),
                                       ),
                                     ],
                                   ),

@@ -253,18 +253,14 @@ class _UserPageState extends State<UserPage> {
                                       ),
                                       SizedBox(height: 10),
                                       Text(
-                                        "Ngày sinh: " +
-                                            userBloc.diner.dob.day.toString() +
-                                            "/" +
-                                            userBloc.diner.dob.month
-                                                .toString() +
-                                            "/" +
-                                            userBloc.diner.dob.year.toString(),
+                                        "Điểm tích lũy: " +
+                                            userBloc.diner.point.toString(),
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                             color: kTextDisabledColor,
                                             fontSize: 16),
                                       ),
+                                      
                                       SizedBox(height: 10),
                                       Row(
                                         mainAxisAlignment:
@@ -312,6 +308,32 @@ class _UserPageState extends State<UserPage> {
                                               SizedBox(height: 5),
                                               Text(
                                                 userBloc.diner.reservationCount
+                                                    .toString(),
+                                                style: TextStyle(
+                                                    color: Colors.black54,
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(width: 50),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "Level",
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: kSecondaryColor,
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              SizedBox(height: 5),
+                                              Text(
+                                                userBloc.diner.level
                                                     .toString(),
                                                 style: TextStyle(
                                                     color: Colors.black54,

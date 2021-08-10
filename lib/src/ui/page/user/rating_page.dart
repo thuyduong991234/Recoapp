@@ -630,6 +630,7 @@ class _RatingPageState extends State<RatingPage> {
                 child: FlatButton(
                   onPressed: () {
                     ratingBloc.add(SubmitRatingEvent(
+                        idUser: userBloc.diner.id,
                         context: context,
                         starFood: starFood,
                         starService: starService,
@@ -639,6 +640,7 @@ class _RatingPageState extends State<RatingPage> {
                         photos: ratingBloc.listPhotos,
                         idRestaurant: widget.idRestaurant,
                         idReservation: widget.idReservation));
+
                     userBloc.add(CalRecommendCollabEvent());
                   },
                   color: kThirdColor,
